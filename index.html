@@ -362,6 +362,112 @@ h1 {
   to { transform: translate(-50%, 0); opacity: 1; }
 }
 
+/* ============ Data Viewer ============ */
+.data-viewer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 3000;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.data-viewer.active {
+  display: block;
+}
+
+.viewer-header {
+  background: linear-gradient(135deg, var(--primary) 0%, #1e3a5f 100%);
+  padding: 16px 20px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.viewer-header h2 {
+  color: #fff;
+  font-size: 18px;
+}
+
+.close-viewer {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.close-viewer:active { background: rgba(255,255,255,0.2); }
+
+.viewer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.data-item {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.data-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-num {
+  background: var(--secondary);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.data-date {
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.data-row span:first-child {
+  color: var(--text-mute);
+}
+
+.data-row strong {
+  color: #fff;
+  font-family: 'Courier New', monospace;
+}
+
+.data-row a {
+  color: var(--secondary);
+  text-decoration: none;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
 /* ============ Counter ============ */
 .session-counter {
   background: var(--card);
@@ -1147,6 +1253,124 @@ function showToast(msg) {
   toast.textContent = msg;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
+}
+
+// ============ Export to Excel/CSV ============
+function exportToExcel() {
+  const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  
+  if (data.length === 0) {
+    showToast('⚠️ لا توجد بيانات للتصدير');
+    return;
+  }
+  
+  // BOM لدعم العربية في Excel
+  const BOM = '\uFEFF';
+  
+  const headers = [
+    '#', 'التاريخ', 'الفني', 'المغذي/السكين', 'رقم السكين',
+    'رقم المحول', 'رقم الاشتراك', 'رقم العداد', 'GPS', 'صورة'
+  ];
+  
+  const rows = data.map((d, i) => [
+    i + 1,
+    d.timestamp ? new Date(d.timestamp).toLocaleString('ar-SA') : '',
+    d.technician || '',
+    d.feeder_switch || '',
+    d.switch_no || '',
+    d.transformer || '',
+    d.subscription || '',
+    d.meter || '',
+    d.gps || '',
+    d.has_photo ? 'نعم' : 'لا'
+  ]);
+  
+  // بناء CSV
+  const csv = BOM + [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  
+  // تنزيل الملف
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  
+  const today = new Date().toISOString().split('T')[0];
+  const techName = (data[0].technician || 'فني').replace(/\s+/g, '_');
+  link.download = `SEC_Survey_${techName}_${today}.csv`;
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  
+  showToast(`✅ تم تصدير ${data.length} إدخال`);
+}
+
+// ============ View All Data ============
+function viewAllData() {
+  const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  
+  if (data.length === 0) {
+    showToast('⚠️ لا توجد بيانات محفوظة');
+    return;
+  }
+  
+  // ترتيب من الأحدث للأقدم
+  const sorted = [...data].sort((a, b) => 
+    new Date(b.timestamp) - new Date(a.timestamp)
+  );
+  
+  // بناء HTML للعرض
+  let html = `
+    <div class="viewer-header">
+      <h2>📊 جميع الإدخالات (${data.length})</h2>
+      <button class="close-viewer" onclick="closeViewer()">✕</button>
+    </div>
+    <div class="viewer-content">
+  `;
+  
+  sorted.forEach((d, i) => {
+    const date = d.timestamp ? new Date(d.timestamp).toLocaleString('ar-SA', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    }) : '-';
+    
+    html += `
+      <div class="data-item">
+        <div class="data-item-header">
+          <span class="data-num">#${data.length - i}</span>
+          <span class="data-date">${date}</span>
+        </div>
+        <div class="data-row"><span>👤 الفني:</span><strong>${d.technician || '-'}</strong></div>
+        <div class="data-row"><span>🔌 المغذي/السكين:</span><strong>${d.feeder_switch || '-'}</strong></div>
+        <div class="data-row"><span>🔧 السكين:</span><strong>${d.switch_no || '-'}</strong></div>
+        <div class="data-row"><span>🏭 المحول:</span><strong>${d.transformer || '-'}</strong></div>
+        <div class="data-row"><span>🪪 الاشتراك:</span><strong>${d.subscription || '-'}</strong></div>
+        <div class="data-row"><span>📱 العداد:</span><strong>${d.meter || '-'}</strong></div>
+        ${d.gps ? `<div class="data-row"><span>📍 GPS:</span><a href="https://www.google.com/maps?q=${d.gps}" target="_blank">${d.gps}</a></div>` : ''}
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  
+  // عرض في modal
+  let viewer = document.getElementById('dataViewer');
+  if (!viewer) {
+    viewer = document.createElement('div');
+    viewer.id = 'dataViewer';
+    viewer.className = 'data-viewer';
+    document.body.appendChild(viewer);
+  }
+  viewer.innerHTML = html;
+  viewer.classList.add('active');
+}
+
+function closeViewer() {
+  const viewer = document.getElementById('dataViewer');
+  if (viewer) viewer.classList.remove('active');
 }
 
 // Initialize
