@@ -610,8 +610,23 @@ window.addEventListener('DOMContentLoaded', () => {
     showSetup();
   } else {
     loadData();
+    startAutoRefresh();
   }
 });
+
+// ============ Auto Refresh every 30 seconds ============
+let autoRefreshInterval = null;
+
+function startAutoRefresh() {
+  // إيقاف أي تحديث سابق
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+  
+  // تحديث كل 30 ثانية
+  autoRefreshInterval = setInterval(() => {
+    console.log('🔄 تحديث تلقائي...');
+    loadData();
+  }, 30000); // 30 ثانية
+}
 
 function showSetup() {
   document.getElementById('setupUrl').value = GOOGLE_SHEETS_URL || '';
@@ -628,6 +643,7 @@ function saveConfig() {
   localStorage.setItem('sec_sheets_url', url);
   document.getElementById('setupOverlay').style.display = 'none';
   loadData();
+  startAutoRefresh();
 }
 
 // ============ Load Data ============
