@@ -1127,7 +1127,7 @@ document.getElementById('photoInput').addEventListener('change', (e) => {
 
 // ============ Google Sheets Configuration ============
 // ⚠️ ضع رابط Web App URL من Google Apps Script هنا
-const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyBr1SOEQr16nh4ofL3VRkjE2lMF4cOdvEaV0n7F7tRqyAEob5jjtF5mRKKqgrKqaVa/exec';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyQVIQKqTaAWIhJeYsoqnY4uJO1KMRlGJt0mO3c5fE49K84jWKhg7foVVm4FhFccq7D/exec';
 
 // ============ Technician Name Auto-Save ============
 // تحميل اسم الفني المحفوظ
@@ -1185,7 +1185,7 @@ async function submitForm(event) {
   let sentToCloud = false;
   let errorMsg = '';
   
-  if (GOOGLE_SHEETS_URL && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyBr1SOEQr16nh4ofL3VRkjE2lMF4cOdvEaV0n7F7tRqyAEob5jjtF5mRKKqgrKqaVa/exec') {
+  if (GOOGLE_SHEETS_URL && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyQVIQKqTaAWIhJeYsoqnY4uJO1KMRlGJt0mO3c5fE49K84jWKhg7foVVm4FhFccq7D/exec') {
     try {
       console.log('📤 جاري الإرسال إلى Google Sheets...');
       console.log('📦 البيانات:', data);
@@ -1221,7 +1221,7 @@ async function submitForm(event) {
     btn.disabled = false;
     btn.innerHTML = '<span>✅ إرسال</span>';
     
-    if (!sentToCloud && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyBr1SOEQr16nh4ofL3VRkjE2lMF4cOdvEaV0n7F7tRqyAEob5jjtF5mRKKqgrKqaVa/exec') {
+    if (!sentToCloud && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyQVIQKqTaAWIhJeYsoqnY4uJO1KMRlGJt0mO3c5fE49K84jWKhg7foVVm4FhFccq7D/exec') {
       // محفوظ محلي فقط (الاتصال فشل)
       console.warn('تم الحفظ محلياً - الاتصال بالسحابة فشل');
     }
