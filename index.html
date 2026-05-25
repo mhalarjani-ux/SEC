@@ -1185,7 +1185,7 @@ async function submitForm(event) {
   let sentToCloud = false;
   let errorMsg = '';
   
-  if (GOOGLE_SHEETS_URL && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyQVIQKqTaAWIhJeYsoqnY4uJO1KMRlGJt0mO3c5fE49K84jWKhg7foVVm4FhFccq7D/exec') {
+  if (GOOGLE_SHEETS_URL && GOOGLE_SHEETS_URL.indexOf('script.google.com') !== -1) {
     try {
       console.log('📤 جاري الإرسال إلى Google Sheets...');
       console.log('📦 البيانات:', data);
@@ -1234,7 +1234,7 @@ async function submitForm(event) {
     btn.disabled = false;
     btn.innerHTML = '<span>✅ إرسال</span>';
     
-    if (!sentToCloud && GOOGLE_SHEETS_URL !== 'https://script.google.com/macros/s/AKfycbyQVIQKqTaAWIhJeYsoqnY4uJO1KMRlGJt0mO3c5fE49K84jWKhg7foVVm4FhFccq7D/exec') {
+    if (!sentToCloud && GOOGLE_SHEETS_URL.indexOf('script.google.com') !== -1) {
       // محفوظ محلي فقط (الاتصال فشل)
       console.warn('تم الحفظ محلياً - الاتصال بالسحابة فشل');
     }
