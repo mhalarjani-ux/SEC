@@ -468,6 +468,247 @@ h1 {
   font-size: 11px;
 }
 
+/* ============ Settings Button ============ */
+.settings-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-btn:active {
+  background: rgba(255,255,255,0.2);
+  transform: scale(0.95);
+}
+
+.header {
+  position: relative;
+}
+
+/* ============ Settings Modal ============ */
+.settings-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 41, 0.98);
+  z-index: 5000;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.settings-modal.active { display: block; }
+
+.settings-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.settings-header {
+  background: linear-gradient(135deg, var(--primary) 0%, #1e3a5f 100%);
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-header h2 {
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+}
+
+.close-btn {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.close-btn:active { background: rgba(255,255,255,0.2); }
+
+/* Settings Tabs */
+.settings-tabs {
+  display: flex;
+  background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-tab {
+  flex: 1;
+  padding: 14px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-mute);
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.settings-tab.active {
+  color: var(--secondary);
+  border-bottom-color: var(--secondary);
+}
+
+/* Settings Content */
+.settings-content {
+  display: none;
+  padding: 20px;
+}
+
+.settings-content.active { display: block; }
+
+.settings-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid var(--info);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.add-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.settings-input {
+  flex: 1;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.settings-input:focus {
+  border-color: var(--secondary);
+}
+
+.btn-add {
+  background: var(--secondary);
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-add:active { transform: scale(0.97); }
+
+.settings-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.list-item {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-item.default {
+  border-right: 3px solid var(--info);
+}
+
+.list-item.custom {
+  border-right: 3px solid var(--success);
+}
+
+.list-item-text {
+  font-size: 14px;
+  color: #fff;
+  flex: 1;
+}
+
+.list-item-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--info);
+}
+
+.list-item.custom .list-item-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-delete:active { background: rgba(239, 68, 68, 0.2); }
+
+.settings-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+.btn-reset {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--warning);
+  color: var(--warning);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+}
+
+.btn-reset:active { background: rgba(245, 158, 11, 0.2); }
+
+.empty-list {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-mute);
+  font-size: 13px;
+}
+
 /* ============ Counter ============ */
 .session-counter {
   background: var(--card);
@@ -734,6 +975,7 @@ h1 {
   
   <!-- Header -->
   <div class="header">
+    <button class="settings-btn" onclick="openSettings()" title="الإعدادات">⚙️</button>
     <div class="logo-circle">⚡</div>
     <h1>حصر اشتراك</h1>
     <div class="subtitle">SEC - تعبئة سريعة (30 ثانية)</div>
@@ -771,10 +1013,13 @@ h1 {
           👤 اسم / رقم الفني
           <span class="required">*</span>
         </label>
-        <div class="field-hint">يُحفظ تلقائياً للإدخالات القادمة</div>
+        <div class="field-hint">اختر من القائمة أو اكتب اسم جديد</div>
         <input type="text" class="input" id="technicianInput" 
                placeholder="مثال: م. أحمد - 12345" required
-               inputmode="text">
+               inputmode="text"
+               list="techniciansList"
+               autocomplete="off">
+        <datalist id="techniciansList"></datalist>
       </div>
       
       <!-- Field 1: المغذي + السكين (موحّد) -->
@@ -785,16 +1030,7 @@ h1 {
         </label>
         <select class="select" id="feederSelect" required>
           <option value="">اختر المغذي/السكين...</option>
-          <option value="FR 8783 - 1375">FR 8783 - 1375</option>
-          <option value="FR 8783 - 1275">FR 8783 - 1275</option>
-          <option value="SF 8782 - 322">SF 8782 - 322</option>
-          <option value="SF 8782 - 324">SF 8782 - 324</option>
-          <option value="SF 8782 - 307">SF 8782 - 307</option>
-          <option value="SF 8782 - 330">SF 8782 - 330</option>
-          <option value="MD 7782 - 575">MD 7782 - 575</option>
-          <option value="JP 8780 - 310">JP 8780 - 310</option>
-          <option value="JP 8780 - 309">JP 8780 - 309</option>
-          <option value="JP 8780 - 326">JP 8780 - 326</option>
+          <!-- سيُملأ من JavaScript -->
         </select>
       </div>
       
@@ -1140,6 +1376,8 @@ if (savedTech) {
 document.getElementById('technicianInput').addEventListener('blur', function() {
   if (this.value.trim()) {
     localStorage.setItem('sec_technician', this.value.trim());
+    saveTechnicianToList(this.value.trim());
+    loadTechniciansFromStorage();
   }
 });
 
@@ -1386,9 +1624,326 @@ function closeViewer() {
   if (viewer) viewer.classList.remove('active');
 }
 
+// ============ Settings Management ============
+
+// القيم الافتراضية
+const DEFAULT_FEEDERS = [
+  'FR 8783 - 1375', 'FR 8783 - 1275',
+  'SF 8782 - 322', 'SF 8782 - 324', 'SF 8782 - 307', 'SF 8782 - 330',
+  'MD 7782 - 575',
+  'JP 8780 - 310', 'JP 8780 - 309', 'JP 8780 - 326'
+];
+
+const DEFAULT_TECHNICIANS = [];
+
+// قراءة من localStorage
+function getFeeders() {
+  const custom = JSON.parse(localStorage.getItem('sec_custom_feeders') || '[]');
+  return [...DEFAULT_FEEDERS, ...custom];
+}
+
+function getCustomFeeders() {
+  return JSON.parse(localStorage.getItem('sec_custom_feeders') || '[]');
+}
+
+function getTechnicians() {
+  const saved = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
+  // إضافة الفني الحالي تلقائيًا إذا لم يكن موجودًا
+  const currentTech = localStorage.getItem('sec_technician');
+  if (currentTech && !saved.includes(currentTech)) {
+    saved.push(currentTech);
+    localStorage.setItem('sec_technicians_list', JSON.stringify(saved));
+  }
+  return saved;
+}
+
+// ============ تحديث القوائم في النموذج ============
+function loadFeedersFromStorage() {
+  const select = document.getElementById('feederSelect');
+  const currentValue = select.value;
+  const feeders = getFeeders();
+  const customFeeders = getCustomFeeders();
+  
+  select.innerHTML = '<option value="">اختر المغذي/السكين...</option>';
+  
+  feeders.forEach(feeder => {
+    const opt = document.createElement('option');
+    opt.value = feeder;
+    opt.textContent = feeder;
+    if (customFeeders.includes(feeder)) {
+      opt.textContent += ' ✨';  // علامة على المُضاف
+    }
+    select.appendChild(opt);
+  });
+  
+  // إعادة القيمة المختارة
+  if (currentValue) select.value = currentValue;
+}
+
+function loadTechniciansFromStorage() {
+  const datalist = document.getElementById('techniciansList');
+  const technicians = getTechnicians();
+  
+  datalist.innerHTML = '';
+  technicians.forEach(tech => {
+    const opt = document.createElement('option');
+    opt.value = tech;
+    datalist.appendChild(opt);
+  });
+}
+
+// ============ Open/Close Settings ============
+function openSettings() {
+  document.getElementById('settingsModal').classList.add('active');
+  renderFeedersList();
+  renderTechniciansList();
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('active');
+  // إعادة تحميل القوائم في النموذج
+  loadFeedersFromStorage();
+  loadTechniciansFromStorage();
+}
+
+// ============ Switch Settings Tabs ============
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.settings-content').forEach(c => c.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById('settings-' + tab).classList.add('active');
+}
+
+// ============ Feeders Management ============
+function renderFeedersList() {
+  const container = document.getElementById('feedersList');
+  const customFeeders = getCustomFeeders();
+  
+  let html = '';
+  
+  // المغذيات الافتراضية
+  DEFAULT_FEEDERS.forEach(feeder => {
+    html += `
+      <div class="list-item default">
+        <span class="list-item-text">${feeder}</span>
+        <span class="list-item-badge">افتراضي</span>
+      </div>
+    `;
+  });
+  
+  // المغذيات المُضافة
+  customFeeders.forEach((feeder, idx) => {
+    html += `
+      <div class="list-item custom">
+        <span class="list-item-text">${feeder}</span>
+        <span class="list-item-badge">مُضاف</span>
+        <button class="btn-delete" onclick="deleteFeeder(${idx})" title="حذف">🗑️</button>
+      </div>
+    `;
+  });
+  
+  if (customFeeders.length === 0 && DEFAULT_FEEDERS.length === 0) {
+    html = '<div class="empty-list">لا توجد مغذيات. أضف واحدًا!</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function addFeeder() {
+  const input = document.getElementById('newFeederInput');
+  const value = input.value.trim();
+  
+  if (!value) {
+    showToast('⚠️ أدخل اسم المغذي');
+    return;
+  }
+  
+  const all = getFeeders();
+  if (all.includes(value)) {
+    showToast('⚠️ هذا المغذي موجود بالفعل');
+    return;
+  }
+  
+  const custom = getCustomFeeders();
+  custom.push(value);
+  localStorage.setItem('sec_custom_feeders', JSON.stringify(custom));
+  
+  input.value = '';
+  renderFeedersList();
+  showToast('✅ تم إضافة: ' + value);
+}
+
+function deleteFeeder(index) {
+  const custom = getCustomFeeders();
+  const removed = custom[index];
+  
+  if (!confirm(`حذف "${removed}"؟`)) return;
+  
+  custom.splice(index, 1);
+  localStorage.setItem('sec_custom_feeders', JSON.stringify(custom));
+  renderFeedersList();
+  showToast('🗑️ تم الحذف');
+}
+
+// ============ Technicians Management ============
+function renderTechniciansList() {
+  const container = document.getElementById('techniciansListView');
+  const technicians = getTechnicians();
+  
+  if (technicians.length === 0) {
+    container.innerHTML = '<div class="empty-list">لا يوجد فنيين. أضف أول فني!</div>';
+    return;
+  }
+  
+  container.innerHTML = technicians.map((tech, idx) => `
+    <div class="list-item custom">
+      <span class="list-item-text">${tech}</span>
+      <button class="btn-delete" onclick="deleteTechnician(${idx})" title="حذف">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function addTechnician() {
+  const input = document.getElementById('newTechInput');
+  const value = input.value.trim();
+  
+  if (!value) {
+    showToast('⚠️ أدخل اسم الفني');
+    return;
+  }
+  
+  const technicians = getTechnicians();
+  if (technicians.includes(value)) {
+    showToast('⚠️ هذا الفني موجود بالفعل');
+    return;
+  }
+  
+  technicians.push(value);
+  localStorage.setItem('sec_technicians_list', JSON.stringify(technicians));
+  
+  input.value = '';
+  renderTechniciansList();
+  showToast('✅ تم إضافة: ' + value);
+}
+
+function deleteTechnician(index) {
+  const technicians = getTechnicians();
+  const removed = technicians[index];
+  
+  if (!confirm(`حذف "${removed}"؟`)) return;
+  
+  technicians.splice(index, 1);
+  localStorage.setItem('sec_technicians_list', JSON.stringify(technicians));
+  renderTechniciansList();
+  showToast('🗑️ تم الحذف');
+}
+
+// ============ Reset to Defaults ============
+function resetToDefaults() {
+  if (!confirm('إعادة كل القوائم للقيم الافتراضية؟\n(لن تُحذف بيانات الإدخالات)')) return;
+  
+  localStorage.removeItem('sec_custom_feeders');
+  localStorage.removeItem('sec_technicians_list');
+  
+  renderFeedersList();
+  renderTechniciansList();
+  loadFeedersFromStorage();
+  loadTechniciansFromStorage();
+  
+  showToast('✅ تم إعادة الضبط');
+}
+
+// ============ Enter key support ============
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const newFeederInput = document.getElementById('newFeederInput');
+    const newTechInput = document.getElementById('newTechInput');
+    
+    if (newFeederInput) {
+      newFeederInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addFeeder(); }
+      });
+    }
+    
+    if (newTechInput) {
+      newTechInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addTechnician(); }
+      });
+    }
+  }, 100);
+});
+
+// حفظ الفني تلقائيًا عند الإرسال
+function saveTechnicianToList(name) {
+  if (!name || !name.trim()) return;
+  const technicians = getTechnicians();
+  if (!technicians.includes(name.trim())) {
+    technicians.push(name.trim());
+    localStorage.setItem('sec_technicians_list', JSON.stringify(technicians));
+  }
+}
+
 // Initialize
+loadFeedersFromStorage();
+loadTechniciansFromStorage();
 updateProgress();
 </script>
+
+<!-- ============ Settings Modal ============ -->
+<div class="settings-modal" id="settingsModal">
+  <div class="settings-container">
+    
+    <div class="settings-header">
+      <h2>⚙️ الإعدادات</h2>
+      <button class="close-btn" onclick="closeSettings()">✕</button>
+    </div>
+    
+    <div class="settings-tabs">
+      <div class="settings-tab active" onclick="switchSettingsTab('feeders')">
+        🔌 المغذيات
+      </div>
+      <div class="settings-tab" onclick="switchSettingsTab('technicians')">
+        👥 الفنيين
+      </div>
+    </div>
+    
+    <!-- Feeders Tab -->
+    <div class="settings-content active" id="settings-feeders">
+      <div class="settings-info">
+        💡 المغذيات/السكاكين تظهر في القائمة المنسدلة عند الإدخال
+      </div>
+      
+      <div class="add-form">
+        <input type="text" class="settings-input" id="newFeederInput" 
+               placeholder="مثال: FR 8783 - 1500">
+        <button class="btn-add" onclick="addFeeder()">➕ إضافة</button>
+      </div>
+      
+      <div class="settings-list" id="feedersList"></div>
+    </div>
+    
+    <!-- Technicians Tab -->
+    <div class="settings-content" id="settings-technicians">
+      <div class="settings-info">
+        💡 الفنيون يظهرون كاقتراحات تلقائية عند الكتابة
+      </div>
+      
+      <div class="add-form">
+        <input type="text" class="settings-input" id="newTechInput" 
+               placeholder="مثال: م. خالد - 12347">
+        <button class="btn-add" onclick="addTechnician()">➕ إضافة</button>
+      </div>
+      
+      <div class="settings-list" id="techniciansListView"></div>
+    </div>
+    
+    <div class="settings-footer">
+      <button class="btn-reset" onclick="resetToDefaults()">🔄 إعادة للقيم الافتراضية</button>
+    </div>
+    
+  </div>
+</div>
 
 </body>
 </html>
