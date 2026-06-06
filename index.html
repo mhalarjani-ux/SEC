@@ -492,6 +492,218 @@ h1 {
   transform: scale(0.95);
 }
 
+.bulk-upload-btn {
+  position: absolute;
+  top: 16px;
+  left: 64px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.bulk-upload-btn:active {
+  transform: scale(0.95);
+}
+
+/* ============ Bulk Upload Modal ============ */
+.bulk-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 41, 0.98);
+  z-index: 5000;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.bulk-modal.active { display: block; }
+
+.bulk-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.bulk-header {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bulk-header h2 {
+  color: #fff;
+  font-size: 18px;
+  margin: 0;
+}
+
+.bulk-content {
+  padding: 20px;
+}
+
+.bulk-info-box {
+  background: rgba(0, 166, 166, 0.1);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.bulk-info-box strong {
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.bulk-drop-zone {
+  border: 2px dashed var(--secondary);
+  border-radius: 12px;
+  padding: 30px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(0, 166, 166, 0.05);
+  margin-bottom: 16px;
+}
+
+.bulk-drop-zone:hover {
+  background: rgba(0, 166, 166, 0.1);
+}
+
+.bulk-drop-zone.loaded {
+  border-color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.bulk-drop-zone .icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.bulk-template-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.bulk-template-table th {
+  background: rgba(0,0,0,0.5);
+  color: var(--secondary);
+  padding: 6px 8px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.bulk-template-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.bulk-preview {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+}
+
+.bulk-row {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulk-row.valid { color: var(--success); }
+.bulk-row.invalid { color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+
+.bulk-row .row-num {
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.bulk-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.bulk-stat {
+  background: rgba(0,0,0,0.3);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bulk-stat .num {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.bulk-stat .label {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+.bulk-stat.success .num { color: var(--success); }
+.bulk-stat.danger .num { color: var(--danger); }
+
+.bulk-progress {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.bulk-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary), var(--success));
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.bulk-progress-text {
+  font-size: 12px;
+  color: var(--text-mute);
+  text-align: center;
+}
+
 .header {
   position: relative;
 }
@@ -968,6 +1180,7 @@ h1 {
   color: var(--text-mute);
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -1884,6 +2097,323 @@ function saveTechnicianToList(name) {
   }
 }
 
+// ============ Bulk Upload Functions ============
+let bulkParsedData = [];
+
+function openBulkUpload() {
+  document.getElementById('bulkModal').classList.add('active');
+  resetBulkUI();
+}
+
+function closeBulkUpload() {
+  document.getElementById('bulkModal').classList.remove('active');
+}
+
+function resetBulkUI() {
+  bulkParsedData = [];
+  const dropZone = document.getElementById('bulkDropZone');
+  dropZone.classList.remove('loaded');
+  document.getElementById('bulkFileInput').value = '';
+}
+
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') {
+    showToast('⚠️ مكتبة Excel غير محملة');
+    return;
+  }
+  
+  const wb = XLSX.utils.book_new();
+  const sheet = [
+    ['اسم/رقم الفني', 'المغذي/السكين', 'رقم السكين', 'المحول', 'رقم الاشتراك', 'رقم العداد', 'GPS (اختياري)'],
+    ['م. أحمد - 12345', 'FR 8783 - 1375', '567', 'TR-12345', '123/45/678', '987654321', '26.3,44.8'],
+    ['م. خالد - 12346', 'SF 8782 - 322', '568', 'TR-12346', '124/46/679', '987654322', ''],
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheet), 'حصر اشتراك');
+  XLSX.writeFile(wb, 'SEC_Survey_Template.xlsx');
+  showToast('✅ تم تنزيل القالب');
+}
+
+async function handleBulkFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (typeof XLSX === 'undefined') {
+    showToast('⚠️ مكتبة Excel لم تُحمّل بعد، حاول مجددًا');
+    return;
+  }
+  
+  try {
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    
+    if (raw.length === 0) {
+      showToast('⚠️ الملف فارغ');
+      return;
+    }
+    
+    // كشف الأعمدة (يدعم عربي + إنجليزي + تنسيقات مختلفة)
+    const sample = raw[0];
+    const techCol = findBulkCol(sample, ['فني', 'technician', 'name', 'اسم']);
+    const feederCol = findBulkCol(sample, ['مغذي', 'feeder', 'سكين/مغذي', 'المغذي/السكين']);
+    const switchCol = findBulkCol(sample, ['رقم السكين', 'switch_no', 'سكين', 'switch']);
+    const transformerCol = findBulkCol(sample, ['محول', 'transformer', 'tr']);
+    const subCol = findBulkCol(sample, ['اشتراك', 'subscription', 'account']);
+    const meterCol = findBulkCol(sample, ['عداد', 'meter']);
+    const gpsCol = findBulkCol(sample, ['gps', 'إحداثيات', 'location', 'coordinates']);
+    
+    if (!techCol || !feederCol || !switchCol || !transformerCol || !subCol || !meterCol) {
+      const missing = [];
+      if (!techCol) missing.push('الفني');
+      if (!feederCol) missing.push('المغذي');
+      if (!switchCol) missing.push('رقم السكين');
+      if (!transformerCol) missing.push('المحول');
+      if (!subCol) missing.push('الاشتراك');
+      if (!meterCol) missing.push('العداد');
+      showToast('⚠️ أعمدة مفقودة: ' + missing.join(', '));
+      return;
+    }
+    
+    // معالجة كل صف
+    bulkParsedData = raw.map((row, idx) => {
+      const technician = String(row[techCol] || '').trim();
+      const feeder_switch = String(row[feederCol] || '').trim();
+      const switch_no = String(row[switchCol] || '').trim();
+      const transformer = String(row[transformerCol] || '').trim();
+      const subscription = String(row[subCol] || '').trim();
+      const meter = String(row[meterCol] || '').trim();
+      const gps = gpsCol ? String(row[gpsCol] || '').trim() : '';
+      
+      const errors = [];
+      if (!technician) errors.push('الفني فارغ');
+      if (!feeder_switch) errors.push('المغذي فارغ');
+      if (!switch_no) errors.push('رقم السكين فارغ');
+      if (!transformer) errors.push('المحول فارغ');
+      if (!subscription) errors.push('الاشتراك فارغ');
+      if (!meter) errors.push('العداد فارغ');
+      if (subscription && !/^\d{3}\/\d{2}\/\d{3}$/.test(subscription)) {
+        errors.push('صيغة الاشتراك يجب 000/00/000');
+      }
+      
+      return {
+        rowNumber: idx + 2, // +2 لأن Excel يبدأ من 1 + صف الهيدر
+        technician, feeder_switch, switch_no, transformer,
+        subscription, meter, gps,
+        valid: errors.length === 0,
+        errors
+      };
+    });
+    
+    // تحديث الواجهة
+    document.getElementById('bulkDropZone').classList.add('loaded');
+    renderBulkPreview(file.name);
+    
+  } catch (err) {
+    showToast('❌ خطأ في قراءة الملف: ' + err.message);
+    console.error(err);
+  }
+}
+
+function findBulkCol(row, names) {
+  for (const name of names) {
+    for (const key of Object.keys(row)) {
+      const k = String(key).toLowerCase().replace(/[\s_\-()\/]/g, '');
+      const n = String(name).toLowerCase().replace(/[\s_\-()\/]/g, '');
+      if (k.includes(n) || n.includes(k)) return key;
+    }
+  }
+  return null;
+}
+
+function renderBulkPreview(fileName) {
+  const valid = bulkParsedData.filter(r => r.valid).length;
+  const invalid = bulkParsedData.length - valid;
+  
+  document.getElementById('bulkContent').innerHTML = `
+    <div class="bulk-info-box" style="background:rgba(16, 185, 129, 0.1);border-color:var(--success)">
+      <strong style="color:var(--success)">✅ تم تحليل الملف:</strong>
+      📄 ${fileName}
+    </div>
+    
+    <div class="bulk-stats">
+      <div class="bulk-stat">
+        <div class="num">${bulkParsedData.length}</div>
+        <div class="label">إجمالي الصفوف</div>
+      </div>
+      <div class="bulk-stat success">
+        <div class="num">${valid}</div>
+        <div class="label">صالح للإرسال</div>
+      </div>
+      <div class="bulk-stat danger">
+        <div class="num">${invalid}</div>
+        <div class="label">يحتوي أخطاء</div>
+      </div>
+    </div>
+    
+    <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:8px">معاينة البيانات (أول 50 صف):</div>
+    <div class="bulk-preview">
+      ${bulkParsedData.slice(0, 50).map(row => `
+        <div class="bulk-row ${row.valid ? 'valid' : 'invalid'}">
+          <div class="row-num">${row.rowNumber}</div>
+          <div style="flex:1">
+            <div style="font-weight:600">${row.subscription || '(فارغ)'} • ${row.meter || '(فارغ)'}</div>
+            <div style="font-size:11px;color:var(--text-mute);margin-top:2px">
+              ${row.technician || '?'} • ${row.feeder_switch || '?'}
+            </div>
+            ${row.errors.length > 0 ? `<div style="font-size:11px;color:var(--danger);margin-top:4px">⚠️ ${row.errors.join(' • ')}</div>` : ''}
+          </div>
+          <div style="font-size:18px">${row.valid ? '✅' : '❌'}</div>
+        </div>
+      `).join('')}
+      ${bulkParsedData.length > 50 ? `<div style="padding:10px;text-align:center;color:var(--text-mute);font-size:11px">عرض 50 من ${bulkParsedData.length} • سيتم إرسال الكل</div>` : ''}
+    </div>
+    
+    <div id="bulkProgressWrap" style="display:none;margin-bottom:14px">
+      <div class="bulk-progress">
+        <div class="bulk-progress-bar" id="bulkProgressBar"></div>
+      </div>
+      <div class="bulk-progress-text" id="bulkProgressText">0 / ${valid}</div>
+    </div>
+    
+    <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap">
+      <button class="btn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:10px 16px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px" onclick="resetBulkUI(); openBulkUpload();">↩️ ملف آخر</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:10px 16px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px" onclick="closeBulkUpload()">إلغاء</button>
+        <button class="btn" style="background:var(--success);border:1px solid var(--success);padding:10px 20px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600${valid === 0 ? ';opacity:0.5;cursor:not-allowed' : ''}" 
+                ${valid === 0 ? 'disabled' : ''}
+                onclick="startBulkUpload()">
+          🚀 إرسال ${valid} صف
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function startBulkUpload() {
+  const validRows = bulkParsedData.filter(r => r.valid);
+  if (validRows.length === 0) {
+    showToast('⚠️ لا توجد صفوف صالحة');
+    return;
+  }
+  
+  if (!confirm(`سيتم إرسال ${validRows.length} صف وإلحاقها بقاعدة البيانات.\n\nملاحظة: لن يتم حذف أي بيانات موجودة.\n\nهل أنت متأكد؟`)) {
+    return;
+  }
+  
+  document.getElementById('bulkProgressWrap').style.display = 'block';
+  const progressBar = document.getElementById('bulkProgressBar');
+  const progressText = document.getElementById('bulkProgressText');
+  
+  let sent = 0;
+  let failed = 0;
+  const failedRows = [];
+  
+  // إرسال متسلسل لتجنب overloading
+  for (let i = 0; i < validRows.length; i++) {
+    const row = validRows[i];
+    
+    try {
+      const params = new URLSearchParams({
+        action: 'save',
+        timestamp: new Date().toISOString(),
+        technician: row.technician,
+        feeder_switch: row.feeder_switch,
+        switch_no: row.switch_no,
+        transformer: row.transformer,
+        subscription: row.subscription,
+        meter: row.meter,
+        gps: row.gps,
+        has_photo: '0',
+        source: 'bulk_upload'
+      });
+      
+      await fetch(GOOGLE_SHEETS_URL + '?' + params.toString(), {
+        method: 'GET',
+        mode: 'no-cors'
+      });
+      
+      sent++;
+      
+      // حفظ نسخة احتياطية محلية أيضًا
+      const allData = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+      allData.push({
+        timestamp: new Date().toISOString(),
+        technician: row.technician,
+        feeder_switch: row.feeder_switch,
+        switch_no: row.switch_no,
+        transformer: row.transformer,
+        subscription: row.subscription,
+        meter: row.meter,
+        gps: row.gps,
+        has_photo: false,
+        source: 'bulk_upload'
+      });
+      localStorage.setItem('sec_survey_data', JSON.stringify(allData));
+      
+    } catch (err) {
+      failed++;
+      failedRows.push({ row: row.rowNumber, sub: row.subscription });
+      console.error('فشل صف', row.rowNumber, err);
+    }
+    
+    const pct = ((i + 1) / validRows.length * 100);
+    progressBar.style.width = pct + '%';
+    progressText.textContent = `${i + 1} / ${validRows.length} (${pct.toFixed(0)}%)`;
+    
+    // تأخير صغير لتجنب rate limiting
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  
+  // عرض النتيجة النهائية
+  showBulkResult(sent, failed, failedRows);
+  
+  // تحديث counter في الصفحة الرئيسية
+  updateProgress();
+}
+
+function showBulkResult(sent, failed, failedRows) {
+  document.getElementById('bulkContent').innerHTML = `
+    <div style="text-align:center;padding:30px 20px">
+      <div style="font-size:64px;margin-bottom:14px">${failed === 0 ? '🎉' : '⚠️'}</div>
+      <h3 style="color:#fff;margin-bottom:16px;font-size:18px">${failed === 0 ? 'تم الإرسال بنجاح!' : 'تم الإرسال جزئيًا'}</h3>
+      
+      <div class="bulk-stats">
+        <div class="bulk-stat success">
+          <div class="num">${sent}</div>
+          <div class="label">تم الإرسال</div>
+        </div>
+        <div class="bulk-stat ${failed > 0 ? 'danger' : ''}">
+          <div class="num">${failed}</div>
+          <div class="label">فشل</div>
+        </div>
+        <div class="bulk-stat">
+          <div class="num">${sent + failed}</div>
+          <div class="label">الإجمالي</div>
+        </div>
+      </div>
+      
+      ${failed > 0 ? `
+        <div style="background:rgba(239, 68, 68, 0.1);border:1px solid var(--danger);border-radius:8px;padding:12px;margin:14px 0;text-align:right;font-size:12px">
+          <strong style="color:var(--danger)">صفوف فشلت:</strong><br>
+          ${failedRows.slice(0, 10).map(f => `صف ${f.row}: ${f.sub}`).join('<br>')}
+          ${failedRows.length > 10 ? `<br>... و ${failedRows.length - 10} آخرين` : ''}
+        </div>
+      ` : ''}
+      
+      <div style="background:rgba(0, 166, 166, 0.1);border:1px solid var(--secondary);border-radius:8px;padding:12px;margin:14px 0;font-size:12px;color:var(--text)">
+        💡 البيانات أُلحقت بـ Google Sheets دون حذف الموجود<br>
+        💾 نسخة احتياطية محفوظة محليًا
+      </div>
+      
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+        <button class="btn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:10px 16px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px" onclick="resetBulkUI(); openBulkUpload();">📥 رفع ملف آخر</button>
+        <button class="btn" style="background:var(--secondary);border:1px solid var(--secondary);padding:10px 20px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600" onclick="closeBulkUpload()">✅ تم</button>
+      </div>
+    </div>
+  `;
+}
+
 // Initialize
 loadFeedersFromStorage();
 loadTechniciansFromStorage();
@@ -1940,6 +2470,73 @@ updateProgress();
     
     <div class="settings-footer">
       <button class="btn-reset" onclick="resetToDefaults()">🔄 إعادة للقيم الافتراضية</button>
+    </div>
+    
+  </div>
+</div>
+
+<!-- ============ Bulk Upload Modal ============ -->
+<div class="bulk-modal" id="bulkModal">
+  <div class="bulk-container">
+    
+    <div class="bulk-header">
+      <h2>📥 رفع جماعي من Excel</h2>
+      <button class="close-btn" onclick="closeBulkUpload()">✕</button>
+    </div>
+    
+    <div class="bulk-content" id="bulkContent">
+      
+      <div class="bulk-info-box">
+        <strong>💡 معلومات الرفع الجماعي:</strong>
+        ✅ يُلحق البيانات المرفوعة بـ <strong>قاعدة البيانات القائمة (Google Sheets)</strong> دون حذف الموجود<br>
+        ✅ يقبل ملف Excel بنفس تنسيق نموذج الحصر<br>
+        ✅ يتحقق من صحة كل صف قبل الإرسال<br>
+        ✅ يعرض ملخص قبل الإرسال النهائي
+      </div>
+      
+      <div class="bulk-info-box" style="background:rgba(245, 158, 11, 0.1);border-color:var(--warning)">
+        <strong style="color:var(--warning)">📋 الأعمدة المطلوبة (مرتبة):</strong>
+        <table class="bulk-template-table">
+          <thead>
+            <tr>
+              <th>اسم/رقم الفني</th>
+              <th>المغذي/السكين</th>
+              <th>رقم السكين</th>
+              <th>المحول</th>
+              <th>الاشتراك</th>
+              <th>العداد</th>
+              <th>GPS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>م. أحمد - 12345</td>
+              <td>FR 8783 - 1375</td>
+              <td>567</td>
+              <td>TR-12345</td>
+              <td>123/45/678</td>
+              <td>987654321</td>
+              <td>26.3,44.8 (اختياري)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px;font-size:11px;color:var(--text-mute)">
+          * يدعم أيضًا أسماء الأعمدة بالعربية (الفني، المغذي، إلخ)
+        </div>
+      </div>
+      
+      <label for="bulkFileInput" class="bulk-drop-zone" id="bulkDropZone">
+        <div class="icon">📂</div>
+        <div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:6px">اضغط لاختيار ملف Excel</div>
+        <div style="font-size:12px;color:var(--text-mute)">.xlsx, .xls</div>
+        <input type="file" id="bulkFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleBulkFileSelect(event)">
+      </label>
+      
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:10px 16px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px" onclick="downloadTemplate()">📋 تنزيل قالب فارغ</button>
+        <button class="btn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);padding:10px 16px;border-radius:8px;color:#fff;cursor:pointer;font-family:inherit;font-size:13px" onclick="closeBulkUpload()">إغلاق</button>
+      </div>
+      
     </div>
     
   </div>
