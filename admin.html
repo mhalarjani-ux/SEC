@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SEC - لوحة تحكم الحصر الميداني</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- Leaflet.js للخرائط (مجاني، بدون API key) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<!-- Heatmap plugin -->
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -110,6 +118,19 @@ body {
   background: var(--success);
   color: #fff;
   border-color: var(--success);
+}
+
+.btn.bulk {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: #fff;
+  border-color: #8b5cf6;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.btn.bulk:hover {
+  background: linear-gradient(135deg, #9d6ff7, #7c3aed);
+  border-color: #9d6ff7;
 }
 
 /* ============ Main ============ */
@@ -335,9 +356,120 @@ tr:hover { background: rgba(0, 166, 166, 0.05); }
 
 /* ============ Map ============ */
 #mapContainer {
-  height: 400px;
+  height: 500px;
   border-radius: 12px;
   overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* ============ Map Toolbar ============ */
+.map-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.map-tool-group {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.map-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-mute);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-btn:hover {
+  background: rgba(0, 166, 166, 0.1);
+  color: var(--text);
+}
+
+.map-btn.active {
+  background: var(--secondary);
+  color: #fff;
+}
+
+.map-filter-info {
+  margin-right: auto;
+  font-size: 11px;
+  color: var(--accent);
+  background: rgba(255, 184, 28, 0.1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+}
+
+/* تخصيص لون الخريطة لتتناسب مع الـ Dark Mode */
+.leaflet-container {
+  background: #1a2332 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--card);
+  color: var(--text);
+  border-radius: 10px;
+  border: 1px solid var(--secondary);
+}
+
+.leaflet-popup-tip {
+  background: var(--card);
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  direction: rtl;
+}
+
+.popup-title {
+  font-weight: bold;
+  color: var(--secondary);
+  font-size: 13px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin: 3px 0;
+  gap: 10px;
+}
+
+.popup-row span:first-child { color: var(--text-mute); }
+.popup-row strong { color: #fff; font-family: 'Courier New', monospace; }
+
+.popup-link {
+  display: inline-block;
+  background: var(--secondary);
+  color: #fff !important;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-decoration: none;
+  margin-top: 6px;
 }
 
 /* ============ Empty State ============ */
@@ -434,14 +566,244 @@ tr:hover { background: rgba(0, 166, 166, 0.05); }
   margin-bottom: 20px;
 }
 
+/* ============ Bulk Upload Modal ============ */
+.bulk-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 25, 41, 0.95);
+  z-index: 5000;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.bulk-modal.active { display: block; }
+
+.bulk-container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.bulk-header {
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bulk-header h2 {
+  color: #fff;
+  font-size: 17px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.bulk-close {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.bulk-content {
+  padding: 22px;
+}
+
+.bulk-info {
+  background: rgba(0, 166, 166, 0.1);
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.bulk-info strong {
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.bulk-info.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--warning);
+}
+
+.bulk-info.warning strong {
+  color: var(--warning);
+}
+
+.bulk-template-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0,0,0,0.3);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 11px;
+  margin-top: 8px;
+}
+
+.bulk-template-table th {
+  background: rgba(0,0,0,0.5);
+  color: var(--secondary);
+  padding: 8px;
+  text-align: right;
+  font-weight: 600;
+}
+
+.bulk-template-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text);
+}
+
+.bulk-drop {
+  border: 2px dashed var(--secondary);
+  border-radius: 12px;
+  padding: 35px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(0, 166, 166, 0.05);
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.bulk-drop:hover { background: rgba(0, 166, 166, 0.1); }
+.bulk-drop.loaded {
+  border-color: var(--success);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.bulk-drop .icon { font-size: 50px; margin-bottom: 10px; }
+
+.bulk-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.bulk-stat {
+  background: rgba(0,0,0,0.3);
+  padding: 14px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.bulk-stat .num {
+  font-size: 26px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.bulk-stat .label {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+.bulk-stat.success { border-color: var(--success); }
+.bulk-stat.success .num { color: var(--success); }
+.bulk-stat.danger { border-color: var(--danger); }
+.bulk-stat.danger .num { color: var(--danger); }
+
+.bulk-preview {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+}
+
+.bulk-row {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bulk-row.valid {
+  border-right: 3px solid var(--success);
+}
+
+.bulk-row.invalid {
+  background: rgba(239, 68, 68, 0.05);
+  border-right: 3px solid var(--danger);
+}
+
+.bulk-row .row-num {
+  background: rgba(255,255,255,0.1);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.bulk-row .row-info { flex: 1; min-width: 0; }
+.bulk-row .row-title { font-weight: 600; color: #fff; }
+.bulk-row .row-sub { font-size: 11px; color: var(--text-mute); margin-top: 2px; }
+.bulk-row .row-errors { font-size: 11px; color: var(--danger); margin-top: 4px; }
+.bulk-row .row-icon { font-size: 20px; }
+
+.bulk-progress {
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  height: 10px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.bulk-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--secondary), var(--success));
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.bulk-progress-text {
+  font-size: 12px;
+  color: var(--text-mute);
+  text-align: center;
+  font-weight: 600;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
 /* ============ Responsive ============ */
 @media (max-width: 900px) {
   .charts-grid { grid-template-columns: 1fr; }
   .header { flex-direction: column; align-items: stretch; }
   .filters { flex-direction: column; align-items: stretch; }
   .filter-input, .filter-select { min-width: 100%; }
+  .bulk-stats { grid-template-columns: 1fr 1fr; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -480,6 +842,7 @@ tr:hover { background: rgba(0, 166, 166, 0.05); }
       <span id="statusText">جاري التحميل...</span>
     </div>
     <button class="btn" onclick="loadData()">🔄 تحديث</button>
+    <button class="btn bulk" onclick="openBulkUpload()">📥 رفع جماعي</button>
     <button class="btn success" onclick="exportToExcel()">📥 تصدير Excel</button>
     <button class="btn" onclick="showSetup()">⚙️</button>
   </div>
@@ -535,12 +898,46 @@ tr:hover { background: rgba(0, 166, 166, 0.05); }
     </div>
     
     <div class="card">
-      <div class="card-title">🗺️ مواقع الإدخالات</div>
-      <div id="mapContainer">
-        <div class="empty-state">
-          <div class="empty-icon">🗺️</div>
-          <p>سيتم عرض الخريطة عند توفر بيانات GPS</p>
+      <div class="card-title">
+        🗺️ مواقع الإدخالات
+        <span id="mapStats" style="font-size:11px;color:var(--text-mute);margin-right:auto;font-weight:normal"></span>
+      </div>
+      
+      <!-- شريط أدوات الخريطة -->
+      <div class="map-toolbar">
+        <div class="map-tool-group">
+          <button class="map-btn active" data-view="markers" onclick="setMapView('markers')">
+            📍 نقاط
+          </button>
+          <button class="map-btn" data-view="heatmap" onclick="setMapView('heatmap')">
+            🔥 خريطة حرارية
+          </button>
+          <button class="map-btn" data-view="route" onclick="setMapView('route')">
+            🛣️ مسار الفني
+          </button>
         </div>
+        
+        <div class="map-tool-group">
+          <button class="map-btn" data-layer="street" onclick="setMapLayer('street')">
+            🗺️ شارع
+          </button>
+          <button class="map-btn active" data-layer="satellite" onclick="setMapLayer('satellite')">
+            🛰️ قمر صناعي
+          </button>
+          <button class="map-btn" data-layer="hybrid" onclick="setMapLayer('hybrid')">
+            🌐 هجين
+          </button>
+        </div>
+        
+        <div class="map-filter-info" id="mapFilterInfo" style="display:none">
+          🔍 يعرض النتائج المفلترة فقط
+        </div>
+      </div>
+      
+      <div id="mapContainer"></div>
+      <div id="mapEmpty" class="empty-state" style="display:none">
+        <div class="empty-icon">🗺️</div>
+        <p>لا توجد بيانات GPS بعد</p>
       </div>
     </div>
   </div>
@@ -692,6 +1089,7 @@ function updateAll() {
   updateKPIs();
   populateFilters();
   updateCharts();
+  updateMap();
   applyFilters();
 }
 
@@ -800,6 +1198,333 @@ function renderTable() {
       </tr>
     `;
   }).join('');
+}
+
+// ============ Map - Advanced Features ============
+let map = null;
+let markerCluster = null;
+let heatmapLayer = null;
+let routeLayer = null;
+let baseLayers = {};
+let currentMapView = 'markers'; // markers | heatmap | route
+let currentMapLayer = 'satellite'; // street | satellite | hybrid
+let useFilteredData = false; // false = كل البيانات | true = المفلترة فقط
+
+// ألوان مختلفة لكل مغذي/سكين
+const feederColors = {};
+const colorPalette = ['#00a6a6', '#ffb81c', '#10b981', '#3b82f6', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#a855f7', '#06b6d4', '#84cc16'];
+
+// ألوان مختلفة لكل فني (للمسارات)
+const techColors = {};
+const techPalette = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#a855f7'];
+
+function getFeederColor(feeder) {
+  if (!feederColors[feeder]) {
+    const index = Object.keys(feederColors).length % colorPalette.length;
+    feederColors[feeder] = colorPalette[index];
+  }
+  return feederColors[feeder];
+}
+
+function getTechColor(tech) {
+  if (!techColors[tech]) {
+    const index = Object.keys(techColors).length % techPalette.length;
+    techColors[tech] = techPalette[index];
+  }
+  return techColors[tech];
+}
+
+function createCustomIcon(color, number) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<div style="
+      width: 28px; 
+      height: 28px; 
+      background: ${color}; 
+      border: 3px solid #fff; 
+      border-radius: 50%; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: bold;
+    ">${number || '⚡'}</div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14]
+  });
+}
+
+function parseGPS(gpsStr) {
+  if (!gpsStr) return null;
+  
+  const cleaned = String(gpsStr).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  const match = cleaned.match(/(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)/);
+  
+  if (match) {
+    const lat = parseFloat(match[1]);
+    const lng = parseFloat(match[2]);
+    
+    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+      return [lat, lng];
+    }
+  }
+  return null;
+}
+
+// ============ تبديل عرض الخريطة ============
+function setMapView(view) {
+  currentMapView = view;
+  
+  // تحديث الأزرار
+  document.querySelectorAll('.map-btn[data-view]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.view === view);
+  });
+  
+  updateMap();
+}
+
+// ============ تبديل طبقة الخريطة ============
+function setMapLayer(layer) {
+  currentMapLayer = layer;
+  
+  // تحديث الأزرار
+  document.querySelectorAll('.map-btn[data-layer]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.layer === layer);
+  });
+  
+  if (!map) return;
+  
+  // إزالة كل الطبقات الأساسية
+  Object.values(baseLayers).forEach(l => map.removeLayer(l));
+  
+  // إضافة الطبقة المختارة
+  if (baseLayers[layer]) {
+    map.addLayer(baseLayers[layer]);
+  }
+}
+
+function updateMap() {
+  // اختيار البيانات (كل البيانات أو المفلترة)
+  const dataSource = useFilteredData ? filteredData : allData;
+  
+  // البيانات التي فيها GPS صالح
+  const pointsWithGPS = dataSource
+    .map(d => ({ ...d, coords: parseGPS(d.gps) }))
+    .filter(d => d.coords !== null);
+  
+  // تحديث إحصائيات الخريطة
+  document.getElementById('mapStats').textContent = 
+    `${pointsWithGPS.length} موقع من ${dataSource.length} إدخال` + 
+    (useFilteredData ? ' (مفلترة)' : '');
+  
+  // إظهار/إخفاء رسالة الفلترة
+  document.getElementById('mapFilterInfo').style.display = 
+    useFilteredData ? 'inline-block' : 'none';
+  
+  // إذا لا توجد بيانات GPS
+  if (pointsWithGPS.length === 0) {
+    document.getElementById('mapContainer').style.display = 'none';
+    document.getElementById('mapEmpty').style.display = 'block';
+    return;
+  }
+  
+  document.getElementById('mapContainer').style.display = 'block';
+  document.getElementById('mapEmpty').style.display = 'none';
+  
+  // ============ إنشاء الخريطة لأول مرة ============
+  if (!map) {
+    map = L.map('mapContainer', {
+      center: [24.7136, 46.6753],
+      zoom: 6,
+      zoomControl: true
+    });
+    
+    // طبقة 1: شوارع
+    baseLayers.street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    });
+    
+    // طبقة 2: قمر صناعي (Esri World Imagery)
+    baseLayers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '© Esri',
+      maxZoom: 19
+    });
+    
+    // طبقة 3: هجين (قمر صناعي + أسماء)
+    baseLayers.hybrid = L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: '© Esri',
+        maxZoom: 19
+      }),
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '',
+        maxZoom: 19,
+        opacity: 0.3
+      })
+    ]);
+    
+    // ابدأ بـ Satellite
+    baseLayers[currentMapLayer].addTo(map);
+    
+    // تجميع الـ markers
+    markerCluster = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      maxClusterRadius: 50,
+      iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        return L.divIcon({
+          html: `<div style="
+            background: #00a6a6;
+            color: #fff;
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            border: 3px solid #fff;
+          ">${count}</div>`,
+          className: 'cluster-icon',
+          iconSize: [42, 42]
+        });
+      }
+    });
+  }
+  
+  // ============ مسح كل الطبقات السابقة ============
+  if (markerCluster) {
+    markerCluster.clearLayers();
+    if (map.hasLayer(markerCluster)) map.removeLayer(markerCluster);
+  }
+  if (heatmapLayer) {
+    map.removeLayer(heatmapLayer);
+    heatmapLayer = null;
+  }
+  if (routeLayer) {
+    map.removeLayer(routeLayer);
+    routeLayer = null;
+  }
+  
+  const bounds = [];
+  
+  // ============ العرض 1: النقاط العادية ============
+  if (currentMapView === 'markers') {
+    pointsWithGPS.forEach(d => {
+      const color = getFeederColor(d.feeder_switch);
+      const icon = createCustomIcon(color);
+      const marker = L.marker(d.coords, { icon });
+      marker.bindPopup(buildPopup(d));
+      markerCluster.addLayer(marker);
+      bounds.push(d.coords);
+    });
+    map.addLayer(markerCluster);
+  }
+  
+  // ============ العرض 2: خريطة حرارية ============
+  else if (currentMapView === 'heatmap') {
+    const heatData = pointsWithGPS.map(d => [d.coords[0], d.coords[1], 1]);
+    heatmapLayer = L.heatLayer(heatData, {
+      radius: 25,
+      blur: 35,
+      maxZoom: 17,
+      max: 1.0,
+      gradient: {
+        0.0: '#3b82f6',
+        0.3: '#10b981',
+        0.5: '#ffb81c',
+        0.7: '#f97316',
+        1.0: '#ef4444'
+      }
+    }).addTo(map);
+    
+    pointsWithGPS.forEach(d => bounds.push(d.coords));
+  }
+  
+  // ============ العرض 3: مسارات الفنيين ============
+  else if (currentMapView === 'route') {
+    // تجميع بحسب الفني واليوم
+    const technicianRoutes = {};
+    
+    pointsWithGPS.forEach(d => {
+      const tech = d.technician || 'غير معروف';
+      const date = d.timestamp ? new Date(d.timestamp).toISOString().split('T')[0] : 'unknown';
+      const key = `${tech} - ${date}`;
+      
+      if (!technicianRoutes[key]) {
+        technicianRoutes[key] = { tech, date, points: [] };
+      }
+      technicianRoutes[key].points.push(d);
+    });
+    
+    // رسم مسار لكل فني/يوم
+    Object.values(technicianRoutes).forEach(route => {
+      // ترتيب النقاط بالوقت
+      route.points.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      
+      const color = getTechColor(route.tech);
+      const coords = route.points.map(p => p.coords);
+      
+      // رسم الخط
+      if (coords.length > 1) {
+        const polyline = L.polyline(coords, {
+          color: color,
+          weight: 3,
+          opacity: 0.7,
+          dashArray: '8, 8'
+        }).addTo(map);
+        polyline.bindTooltip(`${route.tech} - ${route.date} (${route.points.length} نقطة)`, {
+          sticky: true
+        });
+      }
+      
+      // إضافة نقاط مرقمة
+      route.points.forEach((d, i) => {
+        const icon = createCustomIcon(color, i + 1);
+        const marker = L.marker(d.coords, { icon });
+        marker.bindPopup(buildPopup(d) + 
+          `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #334155;font-size:11px">
+            <strong style="color:${color}">🚶 الخطوة ${i + 1} من ${route.points.length}</strong>
+          </div>`);
+        marker.addTo(map);
+        bounds.push(d.coords);
+      });
+    });
+  }
+  
+  // ============ ضبط الـ zoom ============
+  if (bounds.length > 0) {
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+  }
+  
+  // إعادة حساب حجم الخريطة
+  setTimeout(() => map.invalidateSize(), 100);
+}
+
+function buildPopup(d) {
+  const date = d.timestamp ? new Date(d.timestamp).toLocaleString('ar-SA', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  }) : '-';
+  
+  return `
+    <div class="popup-title">⚡ ${d.feeder_switch || 'غير محدد'}</div>
+    <div class="popup-row"><span>📅 التاريخ:</span><strong>${date}</strong></div>
+    ${d.technician ? `<div class="popup-row"><span>👤 الفني:</span><strong>${d.technician}</strong></div>` : ''}
+    <div class="popup-row"><span>🔧 السكين:</span><strong>${d.switch_no || '-'}</strong></div>
+    <div class="popup-row"><span>🏭 المحول:</span><strong>${d.transformer || '-'}</strong></div>
+    <div class="popup-row"><span>🪪 الاشتراك:</span><strong>${d.subscription || '-'}</strong></div>
+    <div class="popup-row"><span>📱 العداد:</span><strong>${d.meter || '-'}</strong></div>
+    <a href="https://www.google.com/maps?q=${d.coords[0]},${d.coords[1]}" target="_blank" class="popup-link">
+      📍 فتح في Google Maps
+    </a>
+  `;
 }
 
 // ============ Charts ============
@@ -965,7 +1690,378 @@ function exportToExcel() {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+// ============================================
+// 📥 Bulk Upload from Excel
+// ============================================
+let bulkParsedData = [];
+
+function openBulkUpload() {
+  if (!GOOGLE_SHEETS_URL) {
+    alert('⚠️ يرجى ضبط رابط Google Sheets أولاً من الإعدادات ⚙️');
+    return;
+  }
+  document.getElementById('bulkModal').classList.add('active');
+  resetBulkUI();
+}
+
+function closeBulkUpload() {
+  document.getElementById('bulkModal').classList.remove('active');
+}
+
+function resetBulkUI() {
+  bulkParsedData = [];
+  document.getElementById('bulkContent').innerHTML = getInitialBulkUI();
+}
+
+function getInitialBulkUI() {
+  return `
+    <div class="bulk-info">
+      <strong>💡 معلومات الرفع الجماعي:</strong>
+      ✅ يُلحق البيانات المرفوعة بـ Google Sheets <strong>دون حذف الموجود</strong><br>
+      ✅ يقبل ملف Excel بنفس تنسيق نموذج الحصر<br>
+      ✅ يتحقق من صحة كل صف قبل الإرسال<br>
+      ✅ يعرض ملخصًا قبل الإرسال النهائي<br>
+      ✅ كل صف يُرسل لـ Google Sheets ويظهر في Dashboard فورًا
+    </div>
+    
+    <div class="bulk-info warning">
+      <strong>📋 الأعمدة المطلوبة (الترتيب غير مهم):</strong>
+      <table class="bulk-template-table">
+        <thead>
+          <tr>
+            <th>اسم/رقم الفني</th>
+            <th>المغذي/السكين</th>
+            <th>رقم السكين</th>
+            <th>المحول</th>
+            <th>الاشتراك</th>
+            <th>العداد</th>
+            <th>GPS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>م. أحمد - 12345</td>
+            <td>FR 8783 - 1375</td>
+            <td>567</td>
+            <td>TR-12345</td>
+            <td>123/45/678</td>
+            <td>987654321</td>
+            <td>26.3,44.8 (اختياري)</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:var(--text-mute)">
+        💡 النظام يكتشف الأعمدة تلقائيًا بأسماء مختلفة (عربي/إنجليزي)
+      </div>
+    </div>
+    
+    <label for="bulkFileInput" class="bulk-drop">
+      <div class="icon">📂</div>
+      <div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:6px">اضغط لاختيار ملف Excel</div>
+      <div style="font-size:12px;color:var(--text-mute)">.xlsx أو .xls</div>
+      <input type="file" id="bulkFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleBulkFileSelect(event)">
+    </label>
+    
+    <div class="bulk-actions">
+      <button class="btn" onclick="downloadTemplate()">📋 تنزيل قالب فارغ</button>
+      <button class="btn" onclick="closeBulkUpload()">إغلاق</button>
+    </div>
+  `;
+}
+
+function downloadTemplate() {
+  if (typeof XLSX === 'undefined') {
+    alert('⚠️ مكتبة Excel غير محملة، حاول مجددًا');
+    return;
+  }
+  
+  const wb = XLSX.utils.book_new();
+  const sheet = [
+    ['اسم/رقم الفني', 'المغذي/السكين', 'رقم السكين', 'المحول', 'رقم الاشتراك', 'رقم العداد', 'GPS (اختياري)'],
+    ['م. أحمد - 12345', 'FR 8783 - 1375', '567', 'TR-12345', '123/45/678', '987654321', '26.3,44.8'],
+    ['م. خالد - 12346', 'SF 8782 - 322', '568', 'TR-12346', '124/46/679', '987654322', ''],
+  ];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheet), 'حصر اشتراك');
+  XLSX.writeFile(wb, 'SEC_Survey_Template.xlsx');
+}
+
+async function handleBulkFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (typeof XLSX === 'undefined') {
+    alert('⚠️ مكتبة Excel لم تُحمّل بعد، انتظر قليلاً وحاول مجددًا');
+    return;
+  }
+  
+  try {
+    const buffer = await file.arrayBuffer();
+    const wb = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    
+    if (raw.length === 0) {
+      alert('⚠️ الملف فارغ');
+      return;
+    }
+    
+    const sample = raw[0];
+    const techCol = findBulkCol(sample, ['فني', 'technician', 'name', 'اسم']);
+    const feederCol = findBulkCol(sample, ['مغذي', 'feeder', 'سكين/مغذي', 'المغذي/السكين']);
+    const switchCol = findBulkCol(sample, ['رقم السكين', 'switch_no', 'سكين', 'switch']);
+    const transformerCol = findBulkCol(sample, ['محول', 'transformer', 'tr']);
+    const subCol = findBulkCol(sample, ['اشتراك', 'subscription', 'account']);
+    const meterCol = findBulkCol(sample, ['عداد', 'meter']);
+    const gpsCol = findBulkCol(sample, ['gps', 'إحداثيات', 'location', 'coordinates']);
+    
+    if (!techCol || !feederCol || !switchCol || !transformerCol || !subCol || !meterCol) {
+      const missing = [];
+      if (!techCol) missing.push('الفني');
+      if (!feederCol) missing.push('المغذي');
+      if (!switchCol) missing.push('رقم السكين');
+      if (!transformerCol) missing.push('المحول');
+      if (!subCol) missing.push('الاشتراك');
+      if (!meterCol) missing.push('العداد');
+      alert('⚠️ أعمدة مفقودة في الملف:\n\n' + missing.join('، ') + '\n\nتأكد من تنزيل القالب الفارغ واستخدامه.');
+      return;
+    }
+    
+    bulkParsedData = raw.map((row, idx) => {
+      const technician = String(row[techCol] || '').trim();
+      const feeder_switch = String(row[feederCol] || '').trim();
+      const switch_no = String(row[switchCol] || '').trim();
+      const transformer = String(row[transformerCol] || '').trim();
+      const subscription = String(row[subCol] || '').trim();
+      const meter = String(row[meterCol] || '').trim();
+      const gps = gpsCol ? String(row[gpsCol] || '').trim() : '';
+      
+      const errors = [];
+      if (!technician) errors.push('الفني فارغ');
+      if (!feeder_switch) errors.push('المغذي فارغ');
+      if (!switch_no) errors.push('السكين فارغ');
+      if (!transformer) errors.push('المحول فارغ');
+      if (!subscription) errors.push('الاشتراك فارغ');
+      if (!meter) errors.push('العداد فارغ');
+      if (subscription && !/^\d{3}\/\d{2}\/\d{3}$/.test(subscription)) {
+        errors.push('صيغة الاشتراك يجب 000/00/000');
+      }
+      
+      return {
+        rowNumber: idx + 2,
+        technician, feeder_switch, switch_no, transformer,
+        subscription, meter, gps,
+        valid: errors.length === 0,
+        errors
+      };
+    });
+    
+    renderBulkPreview(file.name);
+    
+  } catch (err) {
+    alert('❌ خطأ في قراءة الملف: ' + err.message);
+    console.error(err);
+  }
+}
+
+function findBulkCol(row, names) {
+  for (const name of names) {
+    for (const key of Object.keys(row)) {
+      const k = String(key).toLowerCase().replace(/[\s_\-()\/]/g, '');
+      const n = String(name).toLowerCase().replace(/[\s_\-()\/]/g, '');
+      if (k.includes(n) || n.includes(k)) return key;
+    }
+  }
+  return null;
+}
+
+function renderBulkPreview(fileName) {
+  const valid = bulkParsedData.filter(r => r.valid).length;
+  const invalid = bulkParsedData.length - valid;
+  
+  document.getElementById('bulkContent').innerHTML = `
+    <div class="bulk-info" style="background:rgba(16, 185, 129, 0.1);border-color:var(--success)">
+      <strong style="color:var(--success)">✅ تم تحليل الملف:</strong>
+      📄 ${fileName}
+    </div>
+    
+    <div class="bulk-stats">
+      <div class="bulk-stat">
+        <div class="num">${bulkParsedData.length}</div>
+        <div class="label">إجمالي الصفوف</div>
+      </div>
+      <div class="bulk-stat success">
+        <div class="num">${valid}</div>
+        <div class="label">صالح للإرسال</div>
+      </div>
+      <div class="bulk-stat ${invalid > 0 ? 'danger' : ''}">
+        <div class="num">${invalid}</div>
+        <div class="label">يحتوي أخطاء</div>
+      </div>
+    </div>
+    
+    <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:8px">
+      معاينة البيانات (أول 50 صف):
+    </div>
+    
+    <div class="bulk-preview">
+      ${bulkParsedData.slice(0, 50).map(row => `
+        <div class="bulk-row ${row.valid ? 'valid' : 'invalid'}">
+          <div class="row-num">${row.rowNumber}</div>
+          <div class="row-info">
+            <div class="row-title">${row.subscription || '(فارغ)'} • ${row.meter || '(فارغ)'}</div>
+            <div class="row-sub">${row.technician || '?'} • ${row.feeder_switch || '?'} • ${row.switch_no || '?'}</div>
+            ${row.errors.length > 0 ? `<div class="row-errors">⚠️ ${row.errors.join(' • ')}</div>` : ''}
+          </div>
+          <div class="row-icon">${row.valid ? '✅' : '❌'}</div>
+        </div>
+      `).join('')}
+      ${bulkParsedData.length > 50 ? `<div style="padding:12px;text-align:center;color:var(--text-mute);font-size:11px">عرض 50 من ${bulkParsedData.length} • سيتم إرسال جميع الصفوف الصالحة</div>` : ''}
+    </div>
+    
+    <div id="bulkProgressWrap" style="display:none;margin-bottom:14px">
+      <div class="bulk-progress">
+        <div class="bulk-progress-bar" id="bulkProgressBar"></div>
+      </div>
+      <div class="bulk-progress-text" id="bulkProgressText">جاري الإرسال...</div>
+    </div>
+    
+    <div class="bulk-actions">
+      <button class="btn" onclick="resetBulkUI()">↩️ ملف آخر</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn" onclick="closeBulkUpload()">إلغاء</button>
+        <button class="btn success" ${valid === 0 ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''} onclick="startBulkUpload()">
+          🚀 إرسال ${valid} صف
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+async function startBulkUpload() {
+  const validRows = bulkParsedData.filter(r => r.valid);
+  if (validRows.length === 0) {
+    alert('⚠️ لا توجد صفوف صالحة');
+    return;
+  }
+  
+  if (!confirm(`سيتم إرسال ${validRows.length} صف وإلحاقها بـ Google Sheets.\n\n✅ البيانات الموجودة لن تُحذف\n✅ سيتم الإلحاق فقط\n\nهل أنت متأكد؟`)) {
+    return;
+  }
+  
+  document.getElementById('bulkProgressWrap').style.display = 'block';
+  const progressBar = document.getElementById('bulkProgressBar');
+  const progressText = document.getElementById('bulkProgressText');
+  
+  let sent = 0;
+  let failed = 0;
+  const failedRows = [];
+  
+  for (let i = 0; i < validRows.length; i++) {
+    const row = validRows[i];
+    
+    try {
+      const params = new URLSearchParams({
+        action: 'save',
+        timestamp: new Date().toISOString(),
+        technician: row.technician,
+        feeder_switch: row.feeder_switch,
+        switch_no: row.switch_no,
+        transformer: row.transformer,
+        subscription: row.subscription,
+        meter: row.meter,
+        gps: row.gps,
+        has_photo: '0',
+        source: 'bulk_admin'
+      });
+      
+      await fetch(GOOGLE_SHEETS_URL + '?' + params.toString(), {
+        method: 'GET',
+        mode: 'no-cors'
+      });
+      
+      sent++;
+    } catch (err) {
+      failed++;
+      failedRows.push({ row: row.rowNumber, sub: row.subscription });
+    }
+    
+    const pct = ((i + 1) / validRows.length * 100);
+    progressBar.style.width = pct + '%';
+    progressText.textContent = `${i + 1} / ${validRows.length} (${pct.toFixed(0)}%)`;
+    
+    // تأخير صغير لتجنب rate limiting
+    await new Promise(resolve => setTimeout(resolve, 250));
+  }
+  
+  showBulkResult(sent, failed, failedRows);
+  
+  // تحديث البيانات في Dashboard بعد 2 ثانية
+  setTimeout(() => {
+    if (typeof loadData === 'function') loadData();
+  }, 2000);
+}
+
+function showBulkResult(sent, failed, failedRows) {
+  document.getElementById('bulkContent').innerHTML = `
+    <div style="text-align:center;padding:30px 20px">
+      <div style="font-size:70px;margin-bottom:14px">${failed === 0 ? '🎉' : '⚠️'}</div>
+      <h3 style="color:#fff;margin-bottom:18px;font-size:20px">
+        ${failed === 0 ? 'تم الإرسال بنجاح!' : 'تم الإرسال جزئيًا'}
+      </h3>
+      
+      <div class="bulk-stats">
+        <div class="bulk-stat success">
+          <div class="num">${sent}</div>
+          <div class="label">تم الإرسال ✅</div>
+        </div>
+        <div class="bulk-stat ${failed > 0 ? 'danger' : ''}">
+          <div class="num">${failed}</div>
+          <div class="label">فشل ❌</div>
+        </div>
+        <div class="bulk-stat">
+          <div class="num">${sent + failed}</div>
+          <div class="label">الإجمالي</div>
+        </div>
+      </div>
+      
+      ${failed > 0 ? `
+        <div style="background:rgba(239, 68, 68, 0.1);border:1px solid var(--danger);border-radius:8px;padding:14px;margin:14px 0;text-align:right;font-size:12px">
+          <strong style="color:var(--danger);display:block;margin-bottom:6px">صفوف فشل إرسالها:</strong>
+          ${failedRows.slice(0, 10).map(f => `• صف ${f.row}: اشتراك ${f.sub}`).join('<br>')}
+          ${failedRows.length > 10 ? `<br>... و ${failedRows.length - 10} آخرين` : ''}
+        </div>
+      ` : ''}
+      
+      <div style="background:rgba(0, 166, 166, 0.1);border:1px solid var(--secondary);border-radius:8px;padding:14px;margin:14px 0;font-size:12px;color:var(--text);text-align:right">
+        💡 البيانات أُلحقت بـ Google Sheets دون حذف الموجود<br>
+        🔄 سيتم تحديث Dashboard تلقائيًا خلال ثانيتين
+      </div>
+      
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap">
+        <button class="btn" onclick="resetBulkUI()">📥 رفع ملف آخر</button>
+        <button class="btn success" onclick="closeBulkUpload(); loadData();">✅ تم</button>
+      </div>
+    </div>
+  `;
+}
 </script>
+
+<!-- ============ Bulk Upload Modal ============ -->
+<div class="bulk-modal" id="bulkModal">
+  <div class="bulk-container">
+    
+    <div class="bulk-header">
+      <h2>📥 رفع جماعي من Excel</h2>
+      <button class="bulk-close" onclick="closeBulkUpload()">✕</button>
+    </div>
+    
+    <div class="bulk-content" id="bulkContent">
+      <!-- يُملأ ديناميكيًا -->
+    </div>
+    
+  </div>
+</div>
 
 </body>
 </html>
