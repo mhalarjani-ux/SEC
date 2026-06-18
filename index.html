@@ -2,9 +2,22 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0a2540">
-<title>SEC - حصر اشتراك</title>
+
+<!-- PWA: Apple iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="حصر SEC">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- PWA: Description -->
+<meta name="description" content="حصر اشتراك - إدارة كهرباء الخرج - دائرة دعم العمليات والصيانة">
+
+<!-- PWA: Manifest -->
+<link rel="manifest" href='data:application/manifest+json,{"name":"حصر اشتراك - السعودية للطاقة","short_name":"حصر SEC","description":"إدارة كهرباء الخرج - دائرة دعم العمليات والصيانة","start_url":"./","display":"standalone","orientation":"portrait","background_color":"#0a2540","theme_color":"#0a2540","lang":"ar","dir":"rtl","scope":"./","icons":[{"src":"data:image/svg%2Bxml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect fill=%22%23000%22 width=%22192%22 height=%22192%22 rx=%2230%22/%3E%3Ctext x=%2296%22 y=%22130%22 font-size=%22120%22 text-anchor=%22middle%22 fill=%22%2300a6a6%22%3E%E2%9A%A1%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml","purpose":"any maskable"},{"src":"data:image/svg%2Bxml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Crect fill=%22%23000%22 width=%22512%22 height=%22512%22 rx=%2280%22/%3E%3Ctext x=%22256%22 y=%22350%22 font-size=%22320%22 text-anchor=%22middle%22 fill=%22%2300a6a6%22%3E%E2%9A%A1%3C/text%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
+
+<title>حصر SEC - السعودية للطاقة</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -155,6 +168,282 @@ h1 {
 
 .input::placeholder {
   color: var(--text-mute);
+}
+
+/* 🆕 تحذيرات التكرار */
+.duplicate-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 2px solid var(--warning);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 8px;
+  animation: slideDown 0.3s ease;
+}
+
+/* 🆕 أزرار التعديل في عرض السجلات */
+.record-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.btn-edit, .btn-history, .btn-delete-record {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: rgba(0, 166, 166, 0.15);
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+}
+
+.btn-edit:active {
+  background: var(--secondary);
+  color: #fff;
+}
+
+.btn-history {
+  background: rgba(124, 58, 237, 0.15);
+  color: #a78bfa;
+  border: 1px solid #7c3aed;
+}
+
+.btn-history:active {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.btn-delete-record {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.btn-delete-record:active {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* 🆕 مودال التعديل */
+.edit-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.edit-modal {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.edit-header {
+  background: linear-gradient(135deg, #00a6a6 0%, #047857 100%);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 14px 14px 0 0;
+}
+
+.edit-header h3 {
+  color: #fff;
+  font-size: 16px;
+  margin: 0;
+}
+
+.edit-header .close-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.edit-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.edit-info-box {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid var(--warning);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.edit-field {
+  margin-bottom: 14px;
+}
+
+.edit-field label {
+  display: block;
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.edit-field input, .edit-field textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.edit-field input:focus, .edit-field textarea:focus {
+  outline: none;
+  border-color: var(--secondary);
+  background: rgba(0, 166, 166, 0.05);
+}
+
+.edit-device-info {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 12px;
+}
+
+.edit-footer {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+  border-radius: 0 0 14px 14px;
+}
+
+.btn-edit-cancel, .btn-edit-save {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.btn-edit-cancel {
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-edit-save {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-edit-save:active {
+  transform: scale(0.98);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.duplicate-warning .dup-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.duplicate-warning .dup-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.duplicate-warning .dup-title {
+  color: var(--warning);
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.duplicate-warning .dup-details {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.duplicate-warning .dup-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.duplicate-warning .dup-btn-view {
+  background: var(--warning);
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.duplicate-warning .dup-btn-view:active {
+  transform: scale(0.95);
+}
+
+/* حقل الإدخال عند وجود تكرار */
+.input.has-duplicate {
+  border-color: var(--warning) !important;
+  background: rgba(245, 158, 11, 0.05) !important;
 }
 
 .select {
@@ -1403,6 +1692,189 @@ h1 {
 </div>
 
 <script>
+// ============================================
+// 🔍 DUPLICATE DETECTION - كشف التكرار الذكي
+// ============================================
+
+// 🆕 مزامنة سجلات الحصر من Sheets للفحص الشامل
+async function syncSurveyRecordsFromCloud() {
+  if (!GOOGLE_SHEETS_URL || !GOOGLE_SHEETS_URL.includes('script.google.com')) return;
+  
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL + '?action=get');
+    if (!response.ok) return;
+    
+    const result = await response.json();
+    if (result.success && Array.isArray(result.data)) {
+      // دمج سجلات السحابة مع المحلية (بدون تكرار في الـ ID)
+      const cloudRecords = result.data.map(r => ({
+        timestamp: r.timestamp || r['التاريخ'] || '',
+        technician: r.technician || r['الفني'] || '',
+        feeder_switch: r.feeder_switch || r['المغذي/السكين'] || '',
+        switch_no: r.switch_no || r['رقم السكين'] || '',
+        transformer: r.transformer || r['المحول'] || '',
+        subscription: r.subscription || r['الاشتراك'] || '',
+        meter: r.meter || r['العداد'] || '',
+        gps: r.gps || r['GPS'] || '',
+        source: 'cloud'
+      }));
+      
+      // حفظ السجلات السحابية للفحص فقط (لا نخلطها مع المحلية)
+      localStorage.setItem('sec_survey_cloud_cache', JSON.stringify(cloudRecords));
+      
+      console.log(`☁️ تم مزامنة ${cloudRecords.length} سجل من السحابة للفحص`);
+    }
+  } catch (err) {
+    console.error('فشل مزامنة السجلات:', err);
+  }
+}
+
+// فحص فوري عند الكتابة (debounced)
+let dupCheckTimeout;
+
+function checkDuplicate(field) {
+  clearTimeout(dupCheckTimeout);
+  dupCheckTimeout = setTimeout(() => performDuplicateCheck(field), 500);
+}
+
+function performDuplicateCheck(field) {
+  const subscription = document.getElementById('subscriptionInput').value.trim();
+  const meter = document.getElementById('meterInput').value.trim();
+  
+  // إخفاء التحذيرات إذا الحقول فارغة
+  const subWarning = document.getElementById('subscriptionDupWarning');
+  const meterWarning = document.getElementById('meterDupWarning');
+  
+  if (!subscription && !meter) {
+    if (subWarning) subWarning.style.display = 'none';
+    if (meterWarning) meterWarning.style.display = 'none';
+    return;
+  }
+  
+  // 🆕 دمج البيانات المحلية + السحابية للفحص الشامل
+  const localData = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  const cloudData = JSON.parse(localStorage.getItem('sec_survey_cloud_cache') || '[]');
+  const allData = [...localData, ...cloudData];
+  
+  // البحث عن تكرار الاشتراك
+  if (subscription && /^\d{3}\/\d{2}\/\d{3}$/.test(subscription)) {
+    const subDuplicates = allData.filter(d => d.subscription === subscription);
+    if (subDuplicates.length > 0) {
+      showDuplicateWarning('subscription', subscription, subDuplicates);
+    } else {
+      hideDuplicateWarning('subscription');
+    }
+  } else {
+    hideDuplicateWarning('subscription');
+  }
+  
+  // البحث عن تكرار العداد
+  if (meter && meter.length >= 8) {
+    const meterDuplicates = allData.filter(d => d.meter === meter);
+    if (meterDuplicates.length > 0) {
+      showDuplicateWarning('meter', meter, meterDuplicates);
+    } else {
+      hideDuplicateWarning('meter');
+    }
+  } else {
+    hideDuplicateWarning('meter');
+  }
+}
+
+function showDuplicateWarning(type, value, duplicates) {
+  const warningId = type === 'subscription' ? 'subscriptionDupWarning' : 'meterDupWarning';
+  let warning = document.getElementById(warningId);
+  
+  if (!warning) {
+    warning = document.createElement('div');
+    warning.id = warningId;
+    warning.className = 'duplicate-warning';
+    
+    const inputId = type === 'subscription' ? 'subscriptionInput' : 'meterInput';
+    const input = document.getElementById(inputId);
+    input.parentElement.appendChild(warning);
+  }
+  
+  const lastEntry = duplicates[duplicates.length - 1];
+  const date = lastEntry.timestamp ? new Date(lastEntry.timestamp) : null;
+  const dateStr = date ? date.toLocaleDateString('ar-SA') + ' ' + date.toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'}) : '-';
+  
+  warning.innerHTML = `
+    <div class="dup-icon">⚠️</div>
+    <div class="dup-content">
+      <div class="dup-title">${type === 'subscription' ? 'رقم الاشتراك' : 'رقم العداد'} مدخل مسبقًا!</div>
+      <div class="dup-details">
+        تم إدخاله ${duplicates.length} مرة • آخر مرة: ${dateStr}<br>
+        <strong>الفني:</strong> ${lastEntry.technician || '-'} • 
+        <strong>المغذي:</strong> ${lastEntry.feeder_switch || '-'}
+      </div>
+      <div class="dup-actions">
+        <button class="dup-btn-view" onclick="showDuplicateDetails('${type}', '${value}')">👁️ عرض كل التكرارات</button>
+      </div>
+    </div>
+  `;
+  warning.style.display = 'flex';
+}
+
+function hideDuplicateWarning(type) {
+  const warningId = type === 'subscription' ? 'subscriptionDupWarning' : 'meterDupWarning';
+  const warning = document.getElementById(warningId);
+  if (warning) warning.style.display = 'none';
+}
+
+function showDuplicateDetails(type, value) {
+  const localData = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  const field = type === 'subscription' ? 'subscription' : 'meter';
+  const duplicates = localData.filter(d => d[field] === value);
+  
+  let html = `
+    <div class="modal-overlay" id="dupModal" style="display:flex" onclick="if(event.target===this)closeDupModal()">
+      <div class="modal-content" style="max-width:600px;width:90%;padding:20px;background:var(--card);border-radius:12px;border:1px solid var(--border);max-height:80vh;overflow:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <h3 style="color:#fff">📋 تكرارات ${type === 'subscription' ? 'الاشتراك' : 'العداد'}: ${value}</h3>
+          <button onclick="closeDupModal()" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer">✕</button>
+        </div>
+        
+        <div style="background:rgba(245, 158, 11, 0.1);border:1px solid var(--warning);padding:10px;border-radius:8px;margin-bottom:14px;font-size:13px">
+          ⚠️ تم إدخال هذا الرقم <strong>${duplicates.length}</strong> مرة
+        </div>
+        
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${duplicates.map((d, i) => {
+            const date = d.timestamp ? new Date(d.timestamp) : null;
+            return `
+            <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;border-right:3px solid ${i === duplicates.length - 1 ? 'var(--success)' : 'var(--border)'}">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <strong style="color:#fff;font-size:13px">#${i + 1} ${i === duplicates.length - 1 ? '(الأحدث)' : ''}</strong>
+                <span style="color:var(--text-mute);font-size:11px">${date ? date.toLocaleString('ar-SA') : '-'}</span>
+              </div>
+              <div style="font-size:12px;color:var(--text);line-height:1.7">
+                <div>👷 الفني: ${d.technician || '-'}</div>
+                <div>⚡ المغذي: ${d.feeder_switch || '-'} • السكين: ${d.switch_no || '-'}</div>
+                <div>🔌 المحول: ${d.transformer || '-'}</div>
+                ${type === 'subscription' ? `<div>📱 العداد: ${d.meter || '-'}</div>` : `<div>🪪 الاشتراك: ${d.subscription || '-'}</div>`}
+                ${d.gps ? `<div>📍 GPS: ${d.gps.substring(0, 30)}...</div>` : ''}
+              </div>
+            </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div style="text-align:center;margin-top:14px">
+          <button class="btn" onclick="closeDupModal()" style="padding:10px 20px">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeDupModal() {
+  const modal = document.getElementById('dupModal');
+  if (modal) modal.remove();
+}
+
 // ============ Subscription Number Formatter (000/00/000) ============
 document.getElementById('subscriptionInput').addEventListener('input', (e) => {
   let value = e.target.value.replace(/\D/g, ''); // أرقام فقط
@@ -1416,6 +1888,9 @@ document.getElementById('subscriptionInput').addEventListener('input', (e) => {
   
   e.target.value = value;
   updateProgress();
+  
+  // 🆕 فحص التكرار
+  checkDuplicate('subscription');
 });
 
 // منع إدخال أحرف غير الأرقام والشرطة /
@@ -1423,6 +1898,11 @@ document.getElementById('subscriptionInput').addEventListener('keypress', (e) =>
   if (!/[\d]/.test(e.key) && e.key !== 'Backspace') {
     e.preventDefault();
   }
+});
+
+// 🆕 فحص تكرار العداد عند الكتابة
+document.getElementById('meterInput').addEventListener('input', () => {
+  checkDuplicate('meter');
 });
 
 // ============ Camera Scanner (OCR) ============
@@ -1643,6 +2123,41 @@ async function submitForm(event) {
     return;
   }
   
+  // 🆕 فحص التكرار النهائي قبل الإرسال
+  const existingData = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  const subDuplicates = existingData.filter(d => d.subscription === data.subscription);
+  const meterDuplicates = existingData.filter(d => d.meter === data.meter);
+  
+  if (subDuplicates.length > 0 || meterDuplicates.length > 0) {
+    let warningMsg = '⚠️ تنبيه: هذه البيانات مدخلة مسبقًا!\n\n';
+    
+    if (subDuplicates.length > 0) {
+      const last = subDuplicates[subDuplicates.length - 1];
+      const date = last.timestamp ? new Date(last.timestamp).toLocaleString('ar-SA') : '-';
+      warningMsg += `• الاشتراك ${data.subscription}\n`;
+      warningMsg += `  أُدخل ${subDuplicates.length} مرة • آخرها: ${date}\n`;
+      warningMsg += `  الفني السابق: ${last.technician || '-'}\n\n`;
+    }
+    
+    if (meterDuplicates.length > 0) {
+      const last = meterDuplicates[meterDuplicates.length - 1];
+      const date = last.timestamp ? new Date(last.timestamp).toLocaleString('ar-SA') : '-';
+      warningMsg += `• العداد ${data.meter}\n`;
+      warningMsg += `  أُدخل ${meterDuplicates.length} مرة • آخرها: ${date}\n`;
+      warningMsg += `  الفني السابق: ${last.technician || '-'}\n\n`;
+    }
+    
+    warningMsg += 'هل أنت متأكد من المتابعة وإضافة سجل جديد؟';
+    
+    if (!confirm(warningMsg)) {
+      return;
+    }
+    
+    // إضافة علامة للسجل المكرر
+    data.is_duplicate_intentional = true;
+    data.duplicate_count_at_entry = Math.max(subDuplicates.length, meterDuplicates.length);
+  }
+  
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span>⏳ جارٍ الإرسال...</span>';
@@ -1795,24 +2310,40 @@ function exportToExcel() {
 // ============ View All Data ============
 function viewAllData() {
   const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  const cloudData = JSON.parse(localStorage.getItem('sec_survey_cloud_cache') || '[]');
   
-  if (data.length === 0) {
+  if (data.length === 0 && cloudData.length === 0) {
     showToast('⚠️ لا توجد بيانات محفوظة');
     return;
   }
   
-  // ترتيب من الأحدث للأقدم
-  const sorted = [...data].sort((a, b) => 
-    new Date(b.timestamp) - new Date(a.timestamp)
-  );
+  // دمج البيانات (المحلية أولًا لأنها الأحدث)
+  const merged = [];
+  data.forEach((d, idx) => merged.push({...d, _source: 'local', _index: idx}));
+  cloudData.forEach((d, idx) => {
+    // تجنب التكرار مع المحلي بنفس الـ timestamp
+    const exists = data.find(local => 
+      local.timestamp === d.timestamp && 
+      local.subscription === d.subscription && 
+      local.meter === d.meter
+    );
+    if (!exists) {
+      merged.push({...d, _source: 'cloud', _row_index: d.row_index || idx + 2});
+    }
+  });
   
-  // بناء HTML للعرض
+  // ترتيب من الأحدث
+  const sorted = merged.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
   let html = `
     <div class="viewer-header">
-      <h2>📊 جميع الإدخالات (${data.length})</h2>
+      <h2>📊 جميع الإدخالات (${merged.length})</h2>
       <button class="close-viewer" onclick="closeViewer()">✕</button>
     </div>
     <div class="viewer-content">
+      <div style="background:rgba(0, 166, 166, 0.1);border:1px solid var(--secondary);padding:10px;border-radius:8px;margin-bottom:14px;font-size:12px">
+        💡 اضغط <strong>✏️ تعديل</strong> لتغيير بيانات السجل • كل تعديل يُوثّق في سجل التعديلات
+      </div>
   `;
   
   sorted.forEach((d, i) => {
@@ -1821,10 +2352,13 @@ function viewAllData() {
       hour: '2-digit', minute: '2-digit'
     }) : '-';
     
+    const isCloud = d._source === 'cloud';
+    const editKey = isCloud ? `cloud:${d._row_index}` : `local:${d._index}`;
+    
     html += `
-      <div class="data-item">
+      <div class="data-item" id="record-${i}">
         <div class="data-item-header">
-          <span class="data-num">#${data.length - i}</span>
+          <span class="data-num">#${sorted.length - i} ${isCloud ? '☁️' : '💻'}</span>
           <span class="data-date">${date}</span>
         </div>
         <div class="data-row"><span>👤 الفني:</span><strong>${d.technician || '-'}</strong></div>
@@ -1834,13 +2368,30 @@ function viewAllData() {
         <div class="data-row"><span>🪪 الاشتراك:</span><strong>${d.subscription || '-'}</strong></div>
         <div class="data-row"><span>📱 العداد:</span><strong>${d.meter || '-'}</strong></div>
         ${d.gps ? `<div class="data-row"><span>📍 GPS:</span><a href="https://www.google.com/maps?q=${d.gps}" target="_blank">${d.gps}</a></div>` : ''}
+        
+        <div class="record-actions">
+          <button class="btn-edit" onclick="openEditRecord('${editKey}')">
+            ✏️ تعديل
+          </button>
+          ${isCloud ? `
+            <button class="btn-history" onclick="viewRecordHistory(${d._row_index})">
+              📜 سجل التعديلات
+            </button>
+            <button class="btn-delete-record" onclick="deleteRecord('${editKey}')">
+              🗑️ حذف
+            </button>
+          ` : `
+            <button class="btn-delete-record" onclick="deleteRecord('${editKey}')">
+              🗑️ حذف
+            </button>
+          `}
+        </div>
       </div>
     `;
   });
   
   html += '</div>';
   
-  // عرض في modal
   let viewer = document.getElementById('dataViewer');
   if (!viewer) {
     viewer = document.createElement('div');
@@ -1857,6 +2408,491 @@ function closeViewer() {
   if (viewer) viewer.classList.remove('active');
 }
 
+// ============================================
+// ✏️ EDIT RECORDS - تعديل السجلات
+// ============================================
+
+// جلب IP الجهاز (من خدمة خارجية)
+let cachedIP = localStorage.getItem('sec_device_ip') || null;
+let cachedIPTime = parseInt(localStorage.getItem('sec_device_ip_time') || '0');
+
+async function getDeviceIP() {
+  // الكاش لمدة ساعة لتجنب طلبات متكررة
+  if (cachedIP && (Date.now() - cachedIPTime < 3600000)) {
+    return cachedIP;
+  }
+  
+  try {
+    // محاولة 3 خدمات مجانية للحصول على IP
+    const services = [
+      'https://api.ipify.org?format=json',
+      'https://api.my-ip.io/v2/ip.json',
+      'https://ipapi.co/json/'
+    ];
+    
+    for (const url of services) {
+      try {
+        const response = await fetch(url, {signal: AbortSignal.timeout(3000)});
+        if (response.ok) {
+          const data = await response.json();
+          const ip = data.ip || data.IPv4 || data.ipv4 || data.IP || null;
+          if (ip) {
+            cachedIP = ip;
+            cachedIPTime = Date.now();
+            localStorage.setItem('sec_device_ip', ip);
+            localStorage.setItem('sec_device_ip_time', cachedIPTime.toString());
+            return ip;
+          }
+        }
+      } catch (e) {
+        continue;  // جرب الخدمة التالية
+      }
+    }
+  } catch (err) {
+    console.warn('فشل الحصول على IP:', err);
+  }
+  
+  return 'unknown';
+}
+
+// جلب معلومات الجهاز
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  let device = 'Unknown';
+  let os = 'Unknown';
+  let browser = 'Unknown';
+  
+  // OS
+  if (/Windows/i.test(ua)) os = 'Windows';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad/i.test(ua)) os = 'iOS';
+  else if (/Mac/i.test(ua)) os = 'macOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  
+  // Browser
+  if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+  else if (/Edg/i.test(ua)) browser = 'Edge';
+  
+  // Device
+  if (/iPhone/i.test(ua)) device = 'iPhone';
+  else if (/iPad/i.test(ua)) device = 'iPad';
+  else if (/Android.*Mobile/i.test(ua)) device = 'Android Phone';
+  else if (/Android/i.test(ua)) device = 'Android Tablet';
+  else device = 'Desktop';
+  
+  return `${device} / ${os} / ${browser}`;
+}
+
+let currentEditingRecord = null;
+
+async function openEditRecord(editKey) {
+  const [source, indexStr] = editKey.split(':');
+  const index = parseInt(indexStr);
+  
+  let record;
+  if (source === 'local') {
+    const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+    record = {...data[index], _source: 'local', _index: index};
+  } else {
+    const cloudData = JSON.parse(localStorage.getItem('sec_survey_cloud_cache') || '[]');
+    record = cloudData.find(d => d.row_index === index);
+    if (record) record = {...record, _source: 'cloud', _row_index: index};
+  }
+  
+  if (!record) {
+    showToast('⚠️ السجل غير موجود');
+    return;
+  }
+  
+  currentEditingRecord = record;
+  
+  // بناء نموذج التعديل
+  const html = `
+    <div class="edit-modal-overlay" id="editModal">
+      <div class="edit-modal">
+        <div class="edit-header">
+          <h3>✏️ تعديل السجل</h3>
+          <button class="close-btn" onclick="closeEditModal()">✕</button>
+        </div>
+        
+        <div class="edit-body">
+          <div class="edit-info-box">
+            ⚠️ <strong>سيتم توثيق هذا التعديل</strong> مع:
+            <ul style="margin:6px 0 0 20px;font-size:11px">
+              <li>اسم الفني المعدّل</li>
+              <li>وقت التعديل</li>
+              <li>IP الجهاز</li>
+              <li>القيم القديمة والجديدة</li>
+              <li>سبب التعديل</li>
+            </ul>
+          </div>
+          
+          <div class="edit-field">
+            <label>👤 الفني</label>
+            <input type="text" id="edit_technician" value="${record.technician || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>🔌 المغذي/السكين</label>
+            <input type="text" id="edit_feeder_switch" value="${record.feeder_switch || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>🔧 رقم السكين</label>
+            <input type="text" id="edit_switch_no" value="${record.switch_no || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>🏭 المحول</label>
+            <input type="text" id="edit_transformer" value="${record.transformer || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>🪪 رقم الاشتراك</label>
+            <input type="text" id="edit_subscription" value="${record.subscription || ''}" 
+                   placeholder="000/00/000">
+          </div>
+          
+          <div class="edit-field">
+            <label>📱 رقم العداد</label>
+            <input type="text" id="edit_meter" value="${record.meter || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>📍 GPS (اختياري)</label>
+            <input type="text" id="edit_gps" value="${record.gps || ''}">
+          </div>
+          
+          <div class="edit-field">
+            <label>📝 سبب التعديل <span style="color:var(--danger)">*</span></label>
+            <textarea id="edit_reason" rows="2" 
+                      placeholder="مثال: تصحيح خطأ إملائي في رقم العداد..."></textarea>
+          </div>
+          
+          <div class="edit-device-info" id="editDeviceInfo">
+            <div style="font-size:11px;color:var(--text-mute);margin-top:8px">
+              🌐 IP: <span id="editIP">جاري التحميل...</span><br>
+              📱 الجهاز: ${getDeviceInfo()}<br>
+              📅 وقت التعديل: ${new Date().toLocaleString('ar-SA')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="edit-footer">
+          <button class="btn-edit-cancel" onclick="closeEditModal()">إلغاء</button>
+          <button class="btn-edit-save" onclick="saveEdit()">💾 حفظ التعديلات</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', html);
+  
+  // جلب IP في الخلفية
+  getDeviceIP().then(ip => {
+    const ipEl = document.getElementById('editIP');
+    if (ipEl) ipEl.textContent = ip;
+  });
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('editModal');
+  if (modal) modal.remove();
+  currentEditingRecord = null;
+}
+
+async function saveEdit() {
+  if (!currentEditingRecord) return;
+  
+  const reason = document.getElementById('edit_reason').value.trim();
+  if (!reason) {
+    showToast('⚠️ يرجى ذكر سبب التعديل');
+    return;
+  }
+  
+  const newData = {
+    technician: document.getElementById('edit_technician').value.trim(),
+    feeder_switch: document.getElementById('edit_feeder_switch').value.trim(),
+    switch_no: document.getElementById('edit_switch_no').value.trim(),
+    transformer: document.getElementById('edit_transformer').value.trim(),
+    subscription: document.getElementById('edit_subscription').value.trim(),
+    meter: document.getElementById('edit_meter').value.trim(),
+    gps: document.getElementById('edit_gps').value.trim()
+  };
+  
+  // التحقق من صيغة الاشتراك
+  if (newData.subscription && !/^\d{3}\/\d{2}\/\d{3}$/.test(newData.subscription)) {
+    showToast('⚠️ صيغة الاشتراك يجب 000/00/000');
+    return;
+  }
+  
+  // كشف التغييرات
+  const changes = [];
+  const fieldsMap = {
+    technician: 'الفني', feeder_switch: 'المغذي/السكين',
+    switch_no: 'رقم السكين', transformer: 'المحول',
+    subscription: 'رقم الاشتراك', meter: 'رقم العداد', gps: 'GPS'
+  };
+  
+  Object.keys(fieldsMap).forEach(key => {
+    const oldVal = String(currentEditingRecord[key] || '');
+    const newVal = String(newData[key] || '');
+    if (oldVal !== newVal) {
+      changes.push({field: fieldsMap[key], old: oldVal, new: newVal});
+    }
+  });
+  
+  if (changes.length === 0) {
+    showToast('⚠️ لا توجد تغييرات');
+    return;
+  }
+  
+  // تأكيد
+  let summary = '⚠️ ستتم التعديلات التالية:\n\n';
+  changes.forEach(c => {
+    summary += `• ${c.field}:\n  من: ${c.old || '(فارغ)'}\n  إلى: ${c.new || '(فارغ)'}\n\n`;
+  });
+  summary += '\nالسبب: ' + reason;
+  summary += '\n\nهل تريد المتابعة؟';
+  
+  if (!confirm(summary)) return;
+  
+  showToast('⏳ جاري حفظ التعديل...');
+  
+  const ip = await getDeviceIP();
+  const userAgent = getDeviceInfo();
+  const editedBy = localStorage.getItem('sec_technician') || newData.technician || 'unknown';
+  
+  // إذا كان السجل سحابيًا، أرسل التعديل لـ Sheets
+  if (currentEditingRecord._source === 'cloud' && GOOGLE_SHEETS_URL) {
+    try {
+      const params = new URLSearchParams({
+        action: 'edit_survey',
+        row_index: currentEditingRecord._row_index,
+        technician: newData.technician,
+        feeder_switch: newData.feeder_switch,
+        switch_no: newData.switch_no,
+        transformer: newData.transformer,
+        subscription: newData.subscription,
+        meter: newData.meter,
+        gps: newData.gps,
+        edited_by: editedBy,
+        reason: reason,
+        ip_address: ip,
+        user_agent: userAgent
+      });
+      
+      const response = await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+      const result = await response.json();
+      
+      if (result.success) {
+        showToast(`✅ تم التعديل: ${result.changes_count} حقل`);
+        // تحديث الكاش المحلي
+        await syncSurveyRecordsFromCloud();
+      } else {
+        showToast('⚠️ ' + (result.error || 'فشل التعديل السحابي'));
+      }
+    } catch (err) {
+      showToast('⚠️ فشل الاتصال - حُفظ محليًا');
+      saveEditLocally(newData, changes, reason, ip, userAgent, editedBy);
+    }
+  } else {
+    // تعديل محلي
+    saveEditLocally(newData, changes, reason, ip, userAgent, editedBy);
+    showToast(`✅ تم التعديل محليًا: ${changes.length} حقل`);
+  }
+  
+  closeEditModal();
+  closeViewer();
+  setTimeout(viewAllData, 500);
+}
+
+function saveEditLocally(newData, changes, reason, ip, userAgent, editedBy) {
+  const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+  
+  if (currentEditingRecord._source === 'local') {
+    const index = currentEditingRecord._index;
+    // الاحتفاظ بـ timestamp الأصلي
+    const original = data[index];
+    data[index] = {
+      ...original,
+      ...newData,
+      _edited: true,
+      _edit_time: new Date().toISOString(),
+      _edited_by: editedBy,
+      _edit_reason: reason
+    };
+    localStorage.setItem('sec_survey_data', JSON.stringify(data));
+  }
+  
+  // حفظ سجل التعديل محليًا أيضًا
+  const editLog = JSON.parse(localStorage.getItem('sec_edit_log') || '[]');
+  changes.forEach(change => {
+    editLog.push({
+      edit_id: 'LOCAL-' + Date.now() + '-' + Math.random().toString(36).substring(2, 5).toUpperCase(),
+      edit_time: new Date().toISOString(),
+      edited_by: editedBy,
+      edit_type: 'تعديل',
+      changed_field: change.field,
+      old_value: change.old,
+      new_value: change.new,
+      reason: reason,
+      ip_address: ip,
+      user_agent: userAgent
+    });
+  });
+  if (editLog.length > 500) editLog.splice(0, editLog.length - 500); // حد أقصى 500 سجل
+  localStorage.setItem('sec_edit_log', JSON.stringify(editLog));
+}
+
+async function deleteRecord(editKey) {
+  const [source, indexStr] = editKey.split(':');
+  const index = parseInt(indexStr);
+  
+  let record;
+  if (source === 'local') {
+    const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+    record = data[index];
+  } else {
+    const cloudData = JSON.parse(localStorage.getItem('sec_survey_cloud_cache') || '[]');
+    record = cloudData.find(d => d.row_index === index);
+  }
+  
+  if (!record) return;
+  
+  const reason = prompt(
+    `🗑️ حذف السجل\n\n` +
+    `الاشتراك: ${record.subscription || '-'}\n` +
+    `العداد: ${record.meter || '-'}\n\n` +
+    `أدخل سبب الحذف (إجباري):`
+  );
+  
+  if (!reason || !reason.trim()) {
+    showToast('⚠️ يجب ذكر سبب الحذف');
+    return;
+  }
+  
+  if (!confirm(`⚠️ هل أنت متأكد من حذف السجل؟\n\nسيتم توثيق الحذف في سجل التعديلات.`)) return;
+  
+  showToast('⏳ جاري الحذف...');
+  
+  const ip = await getDeviceIP();
+  const userAgent = getDeviceInfo();
+  const deletedBy = localStorage.getItem('sec_technician') || 'unknown';
+  
+  if (source === 'cloud' && GOOGLE_SHEETS_URL) {
+    try {
+      const params = new URLSearchParams({
+        action: 'delete_survey',
+        row_index: index,
+        deleted_by: deletedBy,
+        reason: reason,
+        ip_address: ip,
+        user_agent: userAgent
+      });
+      
+      const response = await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+      const result = await response.json();
+      
+      if (result.success) {
+        showToast('🗑️ تم الحذف بنجاح');
+        await syncSurveyRecordsFromCloud();
+      } else {
+        showToast('⚠️ ' + (result.error || 'فشل الحذف'));
+        return;
+      }
+    } catch (err) {
+      showToast('⚠️ فشل الاتصال');
+      return;
+    }
+  } else {
+    // حذف محلي
+    const data = JSON.parse(localStorage.getItem('sec_survey_data') || '[]');
+    data.splice(index, 1);
+    localStorage.setItem('sec_survey_data', JSON.stringify(data));
+    
+    // توثيق محلي
+    const editLog = JSON.parse(localStorage.getItem('sec_edit_log') || '[]');
+    editLog.push({
+      edit_id: 'LOCAL-DEL-' + Date.now(),
+      edit_time: new Date().toISOString(),
+      edited_by: deletedBy,
+      edit_type: 'حذف',
+      changed_field: 'كامل السجل',
+      old_value: JSON.stringify(record),
+      new_value: '(محذوف)',
+      reason: reason,
+      ip_address: ip,
+      user_agent: userAgent
+    });
+    localStorage.setItem('sec_edit_log', JSON.stringify(editLog));
+    
+    showToast('🗑️ تم الحذف');
+  }
+  
+  closeViewer();
+  setTimeout(viewAllData, 500);
+  updateProgress();
+}
+
+async function viewRecordHistory(rowIndex) {
+  if (!GOOGLE_SHEETS_URL) {
+    showToast('⚠️ السجل السحابي غير متاح');
+    return;
+  }
+  
+  showToast('⏳ جاري التحميل...');
+  
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL + '?action=get_record_history&row_index=' + rowIndex);
+    const result = await response.json();
+    
+    if (!result.success || result.history.length === 0) {
+      showToast('لا توجد تعديلات لهذا السجل');
+      return;
+    }
+    
+    let html = `
+      <div class="edit-modal-overlay" id="historyModal">
+        <div class="edit-modal" style="max-width:600px">
+          <div class="edit-header">
+            <h3>📜 سجل تعديلات السجل #${rowIndex}</h3>
+            <button class="close-btn" onclick="document.getElementById('historyModal').remove()">✕</button>
+          </div>
+          <div class="edit-body" style="max-height:500px;overflow-y:auto">
+            ${result.history.map((h, i) => {
+              const time = h.edit_time ? new Date(h.edit_time).toLocaleString('ar-SA') : '-';
+              return `
+                <div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:8px;margin-bottom:10px;border-right:3px solid ${h.edit_type === 'حذف' ? 'var(--danger)' : 'var(--secondary)'}">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                    <strong style="color:#fff;font-size:13px">${h.edit_type} #${i + 1}</strong>
+                    <span style="color:var(--text-mute);font-size:11px">${time}</span>
+                  </div>
+                  <div style="font-size:12px;line-height:1.7;color:var(--text)">
+                    <div>👤 الفني: ${h.edited_by || '-'}</div>
+                    <div>📝 الحقل: <strong>${h.changed_field}</strong></div>
+                    <div>↻ من: <span style="color:var(--danger)">${h.old_value || '(فارغ)'}</span></div>
+                    <div>↻ إلى: <span style="color:var(--success)">${h.new_value || '(فارغ)'}</span></div>
+                    <div>📋 السبب: ${h.reason || '-'}</div>
+                    <div>🌐 IP: ${h.ip_address || '-'}</div>
+                    <div>📱 الجهاز: ${h.user_agent || '-'}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+  } catch (err) {
+    showToast('❌ خطأ: ' + err.message);
+  }
+}
+
 // ============ Settings Management ============
 
 // القيم الافتراضية
@@ -1869,8 +2905,151 @@ const DEFAULT_FEEDERS = [
 
 const DEFAULT_TECHNICIANS = [];
 
-// قراءة من localStorage
+// ============ مزامنة مع Google Sheets ============
+// المغذيات والفنيون الذين تم جلبهم من Sheets (مشتركة بين كل المستخدمين)
+let sharedFeeders = JSON.parse(localStorage.getItem('sec_shared_feeders') || '[]');
+let sharedTechnicians = JSON.parse(localStorage.getItem('sec_shared_technicians') || '[]');
+let lastSyncTime = localStorage.getItem('sec_last_sync_time') || null;
+let isSyncing = false;
+
+// مزامنة كاملة من Sheets (تجلب المغذيات والفنيين)
+async function syncFromSheets(showToast2 = false) {
+  if (isSyncing) return;
+  if (!GOOGLE_SHEETS_URL || !GOOGLE_SHEETS_URL.includes('script.google.com')) {
+    if (showToast2) showToast('⚠️ رابط Google Sheets غير مضبوط');
+    return;
+  }
+  
+  isSyncing = true;
+  updateSyncIndicator('syncing');
+  
+  try {
+    const response = await fetch(GOOGLE_SHEETS_URL + '?action=sync_all');
+    if (!response.ok) throw new Error('فشل الاتصال');
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      sharedFeeders = result.feeders || [];
+      sharedTechnicians = result.technicians || [];
+      
+      localStorage.setItem('sec_shared_feeders', JSON.stringify(sharedFeeders));
+      localStorage.setItem('sec_shared_technicians', JSON.stringify(sharedTechnicians));
+      
+      lastSyncTime = new Date().toISOString();
+      localStorage.setItem('sec_last_sync_time', lastSyncTime);
+      
+      // تحديث القوائم المعروضة
+      loadFeedersFromStorage();
+      loadTechniciansFromStorage();
+      
+      if (showToast2) {
+        showToast(`✅ تمت المزامنة: ${sharedFeeders.length} مغذي • ${sharedTechnicians.length} فني`);
+      }
+      
+      updateSyncIndicator('success');
+    } else {
+      throw new Error(result.error || 'استجابة غير صحيحة');
+    }
+  } catch (err) {
+    console.error('فشل المزامنة:', err);
+    if (showToast2) showToast('❌ فشل المزامنة - استخدام البيانات المحلية');
+    updateSyncIndicator('error');
+  } finally {
+    isSyncing = false;
+  }
+}
+
+// إضافة مغذي إلى Sheets (للجميع)
+async function addFeederToSheets(name) {
+  if (!GOOGLE_SHEETS_URL || !GOOGLE_SHEETS_URL.includes('script.google.com')) {
+    return { success: false, error: 'رابط Google Sheets غير مضبوط' };
+  }
+  
+  try {
+    const techName = localStorage.getItem('sec_technician') || 'unknown';
+    const params = new URLSearchParams({
+      action: 'add_feeder',
+      name: name,
+      added_by: techName
+    });
+    
+    const response = await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+    return await response.json();
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+// حذف مغذي من Sheets
+async function deleteFeederFromSheets(name) {
+  try {
+    const params = new URLSearchParams({ action: 'delete_feeder', name: name });
+    const response = await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+    return await response.json();
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+// إضافة فني إلى Sheets
+async function addTechnicianToSheets(name) {
+  if (!GOOGLE_SHEETS_URL || !GOOGLE_SHEETS_URL.includes('script.google.com')) return;
+  
+  try {
+    const params = new URLSearchParams({
+      action: 'add_tech',
+      name: name,
+      added_by: 'self'
+    });
+    await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+  } catch (err) {
+    console.error('فشل حفظ الفني:', err);
+  }
+}
+
+// حذف فني من Sheets
+async function deleteTechnicianFromSheets(name) {
+  try {
+    const params = new URLSearchParams({ action: 'delete_tech', name: name });
+    const response = await fetch(GOOGLE_SHEETS_URL + '?' + params.toString());
+    return await response.json();
+  } catch (err) {
+    return { success: false, error: err.toString() };
+  }
+}
+
+// مؤشر حالة المزامنة (في زر الإعدادات)
+function updateSyncIndicator(status) {
+  const btn = document.querySelector('.settings-btn');
+  if (!btn) return;
+  
+  // إزالة المؤشرات السابقة
+  btn.style.boxShadow = '';
+  
+  if (status === 'syncing') {
+    btn.style.boxShadow = '0 0 0 2px rgba(245, 158, 11, 0.6)';
+  } else if (status === 'success') {
+    btn.style.boxShadow = '0 0 0 2px rgba(16, 185, 129, 0.6)';
+    setTimeout(() => { btn.style.boxShadow = ''; }, 2000);
+  } else if (status === 'error') {
+    btn.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.6)';
+    setTimeout(() => { btn.style.boxShadow = ''; }, 3000);
+  }
+}
+
+// قراءة من localStorage (المحلي) - للحفاظ على التوافق
 function getFeeders() {
+  // أولوية البيانات:
+  // 1. البيانات المشتركة من Sheets (إن وُجدت)
+  // 2. الافتراضية + المضافة محليًا
+  
+  if (sharedFeeders && sharedFeeders.length > 0) {
+    // استخدام البيانات المشتركة فقط
+    return sharedFeeders;
+  }
+  
+  // Fallback: الافتراضية + المحلية (في حال لم تتم المزامنة)
   const custom = JSON.parse(localStorage.getItem('sec_custom_feeders') || '[]');
   return [...DEFAULT_FEEDERS, ...custom];
 }
@@ -1880,8 +3059,13 @@ function getCustomFeeders() {
 }
 
 function getTechnicians() {
+  // أولوية: البيانات المشتركة من Sheets
+  if (sharedTechnicians && sharedTechnicians.length > 0) {
+    return sharedTechnicians;
+  }
+  
+  // Fallback محلي
   const saved = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
-  // إضافة الفني الحالي تلقائيًا إذا لم يكن موجودًا
   const currentTech = localStorage.getItem('sec_technician');
   if (currentTech && !saved.includes(currentTech)) {
     saved.push(currentTech);
@@ -1951,39 +3135,75 @@ function switchSettingsTab(tab) {
 // ============ Feeders Management ============
 function renderFeedersList() {
   const container = document.getElementById('feedersList');
-  const customFeeders = getCustomFeeders();
   
   let html = '';
+  let customsList = [];
   
-  // المغذيات الافتراضية
-  DEFAULT_FEEDERS.forEach(feeder => {
-    html += `
-      <div class="list-item default">
-        <span class="list-item-text">${feeder}</span>
-        <span class="list-item-badge">افتراضي</span>
-      </div>
-    `;
-  });
-  
-  // المغذيات المُضافة
-  customFeeders.forEach((feeder, idx) => {
-    html += `
-      <div class="list-item custom">
-        <span class="list-item-text">${feeder}</span>
-        <span class="list-item-badge">مُضاف</span>
-        <button class="btn-delete" onclick="deleteFeeder(${idx})" title="حذف">🗑️</button>
-      </div>
-    `;
-  });
-  
-  if (customFeeders.length === 0 && DEFAULT_FEEDERS.length === 0) {
-    html = '<div class="empty-list">لا توجد مغذيات. أضف واحدًا!</div>';
+  // إذا توفرت بيانات مشتركة من Sheets، نعرضها
+  if (sharedFeeders && sharedFeeders.length > 0) {
+    // فصل الافتراضية عن المضافة
+    sharedFeeders.forEach(feeder => {
+      if (DEFAULT_FEEDERS.includes(feeder)) {
+        html += `
+          <div class="list-item default">
+            <span class="list-item-text">${feeder}</span>
+            <span class="list-item-badge">افتراضي</span>
+          </div>
+        `;
+      } else {
+        customsList.push(feeder);
+      }
+    });
+    
+    // المضافة من الفرق (مع بادج "مشترك")
+    customsList.forEach((feeder, idx) => {
+      html += `
+        <div class="list-item custom">
+          <span class="list-item-text">${feeder}</span>
+          <span class="list-item-badge" style="background:rgba(0, 166, 166, 0.2);color:var(--secondary)">☁️ مشترك</span>
+          <button class="btn-delete" onclick="deleteFeeder(${idx})" title="حذف">🗑️</button>
+        </div>
+      `;
+    });
+    
+    // مؤشر آخر مزامنة
+    const lastSync = localStorage.getItem('sec_last_sync_time');
+    if (lastSync) {
+      const syncDate = new Date(lastSync);
+      const minsAgo = Math.floor((Date.now() - syncDate.getTime()) / 60000);
+      const timeStr = minsAgo < 1 ? 'الآن' : minsAgo < 60 ? `قبل ${minsAgo} دقيقة` : `قبل ${Math.floor(minsAgo/60)} ساعة`;
+      html += `<div style="text-align:center;padding:10px;color:var(--text-mute);font-size:11px">☁️ آخر مزامنة: ${timeStr}</div>`;
+    }
+  } else {
+    // لا توجد بيانات مزامنة - استخدم المحلي
+    const customFeeders = getCustomFeeders();
+    
+    DEFAULT_FEEDERS.forEach(feeder => {
+      html += `
+        <div class="list-item default">
+          <span class="list-item-text">${feeder}</span>
+          <span class="list-item-badge">افتراضي</span>
+        </div>
+      `;
+    });
+    
+    customFeeders.forEach((feeder, idx) => {
+      html += `
+        <div class="list-item custom">
+          <span class="list-item-text">${feeder}</span>
+          <span class="list-item-badge">مُضاف محليًا</span>
+          <button class="btn-delete" onclick="deleteFeeder(${idx})" title="حذف">🗑️</button>
+        </div>
+      `;
+    });
+    
+    html += `<div style="text-align:center;padding:10px;color:var(--warning);font-size:11px">⚠️ لم تتم المزامنة بعد - البيانات محلية فقط</div>`;
   }
   
   container.innerHTML = html;
 }
 
-function addFeeder() {
+async function addFeeder() {
   const input = document.getElementById('newFeederInput');
   const value = input.value.trim();
   
@@ -1998,25 +3218,67 @@ function addFeeder() {
     return;
   }
   
+  // إضافة محلية فورية (للاستجابة السريعة)
   const custom = getCustomFeeders();
   custom.push(value);
   localStorage.setItem('sec_custom_feeders', JSON.stringify(custom));
   
   input.value = '';
-  renderFeedersList();
-  showToast('✅ تم إضافة: ' + value);
+  showToast('⏳ جاري الحفظ للجميع...');
+  
+  // إرسال إلى Sheets (مشاركة مع باقي الفنيين)
+  const result = await addFeederToSheets(value);
+  
+  if (result.success) {
+    showToast('✅ تم إضافة: ' + value + ' (مرئي للجميع)');
+    // مزامنة فورية لجلب أحدث قائمة
+    await syncFromSheets();
+  } else {
+    showToast('⚠️ تم محليًا فقط - ' + (result.error || 'فشل المزامنة'));
+    renderFeedersList();
+  }
 }
 
-function deleteFeeder(index) {
-  const custom = getCustomFeeders();
-  const removed = custom[index];
+async function deleteFeeder(index) {
+  // index هنا هو فهرس في القائمة المعروضة
+  // نحتاج العثور على المغذي حسب القائمة المعروضة في renderFeedersList
   
-  if (!confirm(`حذف "${removed}"؟`)) return;
+  // نحصل على الاسم من قائمة المضافة (الموسومة بـ custom)
+  let nameToDelete;
   
-  custom.splice(index, 1);
-  localStorage.setItem('sec_custom_feeders', JSON.stringify(custom));
-  renderFeedersList();
-  showToast('🗑️ تم الحذف');
+  // إذا البيانات من Sheets، نأخذ من sharedFeeders
+  if (sharedFeeders.length > 0) {
+    // المضافة (غير الافتراضية)
+    const customsInShared = sharedFeeders.filter(f => !DEFAULT_FEEDERS.includes(f));
+    nameToDelete = customsInShared[index];
+  } else {
+    // محلي فقط
+    const custom = getCustomFeeders();
+    nameToDelete = custom[index];
+  }
+  
+  if (!nameToDelete) return;
+  if (!confirm(`حذف "${nameToDelete}"؟\n\nسيتم حذفه من قائمة جميع الفنيين.`)) return;
+  
+  showToast('⏳ جاري الحذف...');
+  
+  // حذف من Sheets
+  const result = await deleteFeederFromSheets(nameToDelete);
+  
+  if (result.success) {
+    // حذف محلي أيضًا
+    const custom = getCustomFeeders();
+    const localIdx = custom.indexOf(nameToDelete);
+    if (localIdx > -1) {
+      custom.splice(localIdx, 1);
+      localStorage.setItem('sec_custom_feeders', JSON.stringify(custom));
+    }
+    
+    showToast('🗑️ تم الحذف من الجميع');
+    await syncFromSheets();
+  } else {
+    showToast('⚠️ فشل الحذف: ' + (result.error || ''));
+  }
 }
 
 // ============ Technicians Management ============
@@ -2025,19 +3287,22 @@ function renderTechniciansList() {
   const technicians = getTechnicians();
   
   if (technicians.length === 0) {
-    container.innerHTML = '<div class="empty-list">لا يوجد فنيين. أضف أول فني!</div>';
+    container.innerHTML = '<div class="empty-list">لا يوجد فنيين. سيُضافون تلقائيًا عند الإدخال!</div>';
     return;
   }
+  
+  const isShared = sharedTechnicians.length > 0;
   
   container.innerHTML = technicians.map((tech, idx) => `
     <div class="list-item custom">
       <span class="list-item-text">${tech}</span>
+      ${isShared ? '<span class="list-item-badge" style="background:rgba(0, 166, 166, 0.2);color:var(--secondary)">☁️ مشترك</span>' : ''}
       <button class="btn-delete" onclick="deleteTechnician(${idx})" title="حذف">🗑️</button>
     </div>
   `).join('');
 }
 
-function addTechnician() {
+async function addTechnician() {
   const input = document.getElementById('newTechInput');
   const value = input.value.trim();
   
@@ -2052,24 +3317,54 @@ function addTechnician() {
     return;
   }
   
-  technicians.push(value);
-  localStorage.setItem('sec_technicians_list', JSON.stringify(technicians));
+  // إضافة محلية فورية
+  const localList = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
+  localList.push(value);
+  localStorage.setItem('sec_technicians_list', JSON.stringify(localList));
   
   input.value = '';
-  renderTechniciansList();
-  showToast('✅ تم إضافة: ' + value);
+  showToast('⏳ جاري الحفظ للجميع...');
+  
+  // إرسال إلى Sheets
+  await addTechnicianToSheets(value);
+  
+  // مزامنة لجلب القائمة المحدثة
+  await syncFromSheets();
+  showToast('✅ تم إضافة: ' + value + ' (مرئي للجميع)');
 }
 
-function deleteTechnician(index) {
-  const technicians = getTechnicians();
-  const removed = technicians[index];
+async function deleteTechnician(index) {
+  let nameToDelete;
   
-  if (!confirm(`حذف "${removed}"؟`)) return;
+  if (sharedTechnicians.length > 0) {
+    nameToDelete = sharedTechnicians[index];
+  } else {
+    const technicians = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
+    nameToDelete = technicians[index];
+  }
   
-  technicians.splice(index, 1);
-  localStorage.setItem('sec_technicians_list', JSON.stringify(technicians));
-  renderTechniciansList();
-  showToast('🗑️ تم الحذف');
+  if (!nameToDelete) return;
+  if (!confirm(`حذف "${nameToDelete}"؟\n\nسيتم حذفه من قائمة الجميع.`)) return;
+  
+  showToast('⏳ جاري الحذف...');
+  
+  // حذف من Sheets
+  const result = await deleteTechnicianFromSheets(nameToDelete);
+  
+  if (result.success) {
+    // حذف محلي
+    const localList = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
+    const localIdx = localList.indexOf(nameToDelete);
+    if (localIdx > -1) {
+      localList.splice(localIdx, 1);
+      localStorage.setItem('sec_technicians_list', JSON.stringify(localList));
+    }
+    
+    showToast('🗑️ تم الحذف من الجميع');
+    await syncFromSheets();
+  } else {
+    showToast('⚠️ فشل الحذف');
+  }
 }
 
 // ============ Reset to Defaults ============
@@ -2434,10 +3729,143 @@ function showBulkResult(sent, failed, failedRows) {
   `;
 }
 
+// ============ PWA: Install Prompt ============
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+function showInstallBanner() {
+  // عدم العرض إذا تم رفضه قبل ذلك
+  if (localStorage.getItem('sec_install_dismissed') === 'true') return;
+  if (document.getElementById('installBanner')) return;
+  
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.style.cssText = `
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #00a6a6, #00d4d4);
+    color: #fff; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 9999; box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+    animation: slideUp 0.3s ease-out;
+  `;
+  banner.innerHTML = `
+    <div style="font-size:30px">📲</div>
+    <div style="flex:1">
+      <div style="font-weight:bold;font-size:14px;margin-bottom:2px">ثبّت التطبيق</div>
+      <div style="font-size:11px;opacity:0.9">لاستخدام أسرع وأداء أفضل</div>
+    </div>
+    <button onclick="installApp()" style="background:#000;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold;cursor:pointer;font-family:inherit;font-size:13px">تثبيت</button>
+    <button onclick="dismissInstall()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);padding:10px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px">لاحقًا</button>
+  `;
+  document.body.appendChild(banner);
+}
+
+async function installApp() {
+  if (!deferredInstallPrompt) {
+    // iOS Safari لا يدعم beforeinstallprompt - عرض تعليمات يدوية
+    showIOSInstructions();
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('installBanner')?.remove();
+  }
+  deferredInstallPrompt = null;
+}
+
+function dismissInstall() {
+  localStorage.setItem('sec_install_dismissed', 'true');
+  document.getElementById('installBanner')?.remove();
+}
+
+function showIOSInstructions() {
+  alert('📱 لتثبيت التطبيق على iPhone:\n\n1. اضغط زر المشاركة (□↑) في Safari\n2. اختر "إضافة إلى الشاشة الرئيسية"\n3. اضغط "إضافة"');
+  dismissInstall();
+}
+
+// عرض تعليمات iOS تلقائيًا إذا كان iPhone ولم يكن في وضع standalone
+window.addEventListener('load', () => {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  
+  if (isIOS && !isInStandaloneMode && !localStorage.getItem('sec_install_dismissed')) {
+    setTimeout(showInstallBanner, 3000);
+  }
+});
+
+// ============ Service Worker للأوفلاين ============
+if ('serviceWorker' in navigator) {
+  // إنشاء Service Worker inline
+  const swCode = `
+    const CACHE_NAME = 'sec-survey-v1';
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+    self.addEventListener('fetch', e => {
+      // أوفلاين: استخدم cache, ثم network, ثم fallback
+      e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request).catch(() => 
+          new Response('غير متصل', {status: 503})
+        ))
+      );
+    });
+  `;
+  
+  const swBlob = new Blob([swCode], {type: 'text/javascript'});
+  const swUrl = URL.createObjectURL(swBlob);
+  
+  navigator.serviceWorker.register(swUrl).catch(err => {
+    console.log('Service Worker registration:', err);
+  });
+}
+
 // Initialize
 loadFeedersFromStorage();
 loadTechniciansFromStorage();
 updateProgress();
+
+// ============ مزامنة تلقائية عند الفتح ============
+// تحدث في الخلفية دون تعطيل المستخدم
+setTimeout(() => {
+  syncFromSheets(false);  // false = لا تعرض toast إلا عند الخطأ
+  syncSurveyRecordsFromCloud();  // 🆕 مزامنة سجلات الحصر للتحقق من التكرار
+}, 1500);
+
+// مزامنة دورية كل 5 دقائق (في حال ظل الفني فاتح للنموذج)
+setInterval(() => {
+  syncFromSheets(false);
+  syncSurveyRecordsFromCloud();  // 🆕
+}, 5 * 60 * 1000);
+
+// مزامنة عند رجوع النافذة للظهور (للجوال)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    const lastSync = localStorage.getItem('sec_last_sync_time');
+    if (!lastSync || (Date.now() - new Date(lastSync).getTime()) > 60000) {
+      syncFromSheets(false);
+    }
+  }
+});
+
+// عند إدخال اسم الفني، أرسله إلى Sheets ليُحفظ للجميع
+let techInputTimeout;
+document.getElementById('technicianInput')?.addEventListener('change', (e) => {
+  const value = e.target.value.trim();
+  if (!value) return;
+  
+  localStorage.setItem('sec_technician', value);
+  
+  // تجنب الإرسال المتكرر
+  clearTimeout(techInputTimeout);
+  techInputTimeout = setTimeout(() => {
+    addTechnicianToSheets(value);
+  }, 2000);
+});
 </script>
 
 <!-- ============ Settings Modal ============ -->
@@ -2461,6 +3889,7 @@ updateProgress();
     <!-- Feeders Tab -->
     <div class="settings-content active" id="settings-feeders">
       <div class="settings-info">
+        ☁️ <strong>مشاركة مع الفرق:</strong> أي مغذي تضيفه سيظهر تلقائيًا لجميع الفنيين في الميدان<br>
         💡 المغذيات/السكاكين تظهر في القائمة المنسدلة عند الإدخال
       </div>
       
@@ -2476,6 +3905,7 @@ updateProgress();
     <!-- Technicians Tab -->
     <div class="settings-content" id="settings-technicians">
       <div class="settings-info">
+        ☁️ <strong>مشاركة مع الفرق:</strong> الفنيون يُحفظون تلقائيًا للجميع<br>
         💡 الفنيون يظهرون كاقتراحات تلقائية عند الكتابة
       </div>
       
@@ -2489,6 +3919,9 @@ updateProgress();
     </div>
     
     <div class="settings-footer">
+      <button class="btn-reset" onclick="syncFromSheets(true)" style="background:rgba(0, 166, 166, 0.1);border-color:var(--secondary);color:var(--secondary);margin-bottom:8px">
+        ☁️ مزامنة الآن من السحابة
+      </button>
       <button class="btn-reset" onclick="resetToDefaults()">🔄 إعادة للقيم الافتراضية</button>
     </div>
     
