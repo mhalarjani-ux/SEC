@@ -2385,6 +2385,12 @@ let lastCapturedImage = null;
 async function initializeTesseractWorker() {
   if (tesseractWorker) return tesseractWorker;
   
+  // التأكد من وجود Tesseract
+  if (typeof Tesseract === 'undefined') {
+    console.error('Tesseract.js لم يُحمّل بعد');
+    return null;
+  }
+  
   try {
     tesseractWorker = await Tesseract.createWorker('eng', 1, {
       logger: m => {
@@ -2396,16 +2402,22 @@ async function initializeTesseractWorker() {
       }
     });
     
-    // 🚀 إعدادات محسّنة للأرقام فقط
-    await tesseractWorker.setParameters({
-      tessedit_char_whitelist: '0123456789',  // أرقام فقط!
-      tessedit_pageseg_mode: Tesseract.PSM.SINGLE_LINE,  // سطر واحد
-      preserve_interword_spaces: '0'
-    });
+    // 🚀 إعدادات محسّنة للأرقام فقط (متوافق مع v5)
+    try {
+      await tesseractWorker.setParameters({
+        tessedit_char_whitelist: '0123456789',  // أرقام فقط!
+        tessedit_pageseg_mode: '7',  // SINGLE_LINE = 7
+        preserve_interword_spaces: '0'
+      });
+    } catch (paramErr) {
+      console.warn('بعض الإعدادات لم تُطبّق:', paramErr);
+      // المتابعة بدون الإعدادات
+    }
     
     return tesseractWorker;
   } catch (err) {
     console.error('فشل تهيئة OCR:', err);
+    tesseractWorker = null;
     return null;
   }
 }
