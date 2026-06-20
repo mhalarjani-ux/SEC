@@ -18,7 +18,31 @@
 <link rel="manifest" href='data:application/manifest+json,{"name":"حصر اشتراك - السعودية للطاقة","short_name":"حصر SEC","description":"إدارة كهرباء الخرج - دائرة دعم العمليات والصيانة","start_url":"./","display":"standalone","orientation":"portrait","background_color":"#0a2540","theme_color":"#0a2540","lang":"ar","dir":"rtl","scope":"./","icons":[{"src":"data:image/svg%2Bxml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 192 192%22%3E%3Crect fill=%22%23000%22 width=%22192%22 height=%22192%22 rx=%2230%22/%3E%3Ctext x=%2296%22 y=%22130%22 font-size=%22120%22 text-anchor=%22middle%22 fill=%22%2300a6a6%22%3E%E2%9A%A1%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml","purpose":"any maskable"},{"src":"data:image/svg%2Bxml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Crect fill=%22%23000%22 width=%22512%22 height=%22512%22 rx=%2280%22/%3E%3Ctext x=%22256%22 y=%22350%22 font-size=%22320%22 text-anchor=%22middle%22 fill=%22%2300a6a6%22%3E%E2%9A%A1%3C/text%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml","purpose":"any maskable"}]}'>
 
 <title>حصر SEC - السعودية للطاقة</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+// تحميل Tesseract مع fallback
+(function() {
+  function loadScript(src, onload, onerror) {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = onload;
+    s.onerror = onerror;
+    document.head.appendChild(s);
+  }
+  
+  loadScript(
+    'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js',
+    () => console.log('✅ Tesseract محمّل'),
+    () => {
+      console.warn('فشل تحميل Tesseract v5، محاولة v4...');
+      loadScript(
+        'https://unpkg.com/tesseract.js@4/dist/tesseract.min.js',
+        () => console.log('✅ Tesseract v4 محمّل'),
+        () => console.warn('⚠️ OCR غير متاح - الكتابة اليدوية فقط')
+      );
+    }
+  );
+})();
+</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -2427,37 +2451,82 @@ async function startScan() {
   const video = document.getElementById('cameraVideo');
   const status = document.getElementById('scannerStatus');
   
+  if (!overlay || !video || !status) {
+    showToast('⚠️ خطأ: عناصر الماسح غير موجودة');
+    return;
+  }
+  
   overlay.classList.add('active');
   status.textContent = '⏳ جارٍ تشغيل الكاميرا...';
+  
+  // 🚀 التحقق من دعم الكاميرا
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    status.textContent = '❌ المتصفح لا يدعم الكاميرا';
+    showToast('⚠️ استخدم Chrome أو Safari الحديث');
+    return;
+  }
+  
+  // 🚀 التحقق من HTTPS (الكاميرا تحتاج https في معظم المتصفحات)
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    status.textContent = '❌ الكاميرا تحتاج اتصال HTTPS آمن';
+    showToast('⚠️ افتح الرابط بـ HTTPS');
+    return;
+  }
   
   // 🚀 تهيئة Worker في الخلفية (لا ننتظر)
   initializeTesseractWorker();
   
   try {
-    // 🚀 طلب أعلى دقة ممكنة
-    videoStream = await navigator.mediaDevices.getUserMedia({
-      video: { 
-        facingMode: 'environment',
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        focusMode: 'continuous'  // تركيز تلقائي مستمر
-      }
-    });
+    // محاولة 1: أعلى جودة
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
+      });
+    } catch (highQualityErr) {
+      // محاولة 2: جودة عادية (للأجهزة القديمة)
+      console.warn('فشل أعلى جودة، محاولة عادية:', highQualityErr);
+      videoStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' }
+      });
+    }
+    
     video.srcObject = videoStream;
     
     // 🚀 محاولة تفعيل الفلاش لو موجود
-    const track = videoStream.getVideoTracks()[0];
-    const capabilities = track.getCapabilities ? track.getCapabilities() : {};
-    if (capabilities.torch !== undefined) {
-      // إظهار زر الفلاش
-      const flashBtn = document.getElementById('flashBtn');
-      if (flashBtn) flashBtn.style.display = 'flex';
+    try {
+      const track = videoStream.getVideoTracks()[0];
+      const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+      if (capabilities.torch !== undefined) {
+        const flashBtn = document.getElementById('flashBtn');
+        if (flashBtn) flashBtn.style.display = 'flex';
+      }
+    } catch (e) {
+      // الفلاش غير مدعوم - تخطي
     }
     
     status.textContent = '📸 وجّه الكاميرا على الأرقام واضغط "التقاط"';
   } catch (err) {
-    status.textContent = '❌ لا يمكن الوصول للكاميرا';
     console.error('Camera error:', err);
+    
+    // رسائل خطأ واضحة
+    let msg = '❌ ';
+    if (err.name === 'NotAllowedError') {
+      msg += 'يرجى السماح بالوصول للكاميرا في إعدادات المتصفح';
+    } else if (err.name === 'NotFoundError') {
+      msg += 'لم يتم العثور على كاميرا في الجهاز';
+    } else if (err.name === 'NotReadableError') {
+      msg += 'الكاميرا مشغولة بتطبيق آخر';
+    } else if (err.name === 'OverconstrainedError') {
+      msg += 'إعدادات الكاميرا غير مدعومة';
+    } else {
+      msg += 'خطأ في الكاميرا: ' + (err.message || err.name);
+    }
+    
+    status.textContent = msg;
   }
 }
 
@@ -3941,62 +4010,126 @@ function updateSyncIndicator(status) {
 }
 
 // قراءة من localStorage (المحلي) - للحفاظ على التوافق
-function getFeeders() {
-  // أولوية البيانات:
-  // 1. البيانات المشتركة من Sheets (إن وُجدت)
-  // 2. الافتراضية + المضافة محليًا
-  
-  if (sharedFeeders && sharedFeeders.length > 0) {
-    // استخدام البيانات المشتركة فقط
-    return sharedFeeders;
+// ============================================
+// 🚀 المغذيات والفنيون - محسّن ضد الأخطاء
+// ============================================
+
+// قراءة آمنة من localStorage مع حماية من JSON خاطئ
+function safeGetJSON(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    if (!value) return fallback;
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch (err) {
+    console.warn(`خطأ في قراءة ${key}:`, err);
+    localStorage.removeItem(key);  // مسح القيمة المعطوبة
+    return fallback;
   }
+}
+
+function getFeeders() {
+  // قراءة آمنة للمغذيات المشتركة
+  const shared = safeGetJSON('sec_shared_feeders', []);
+  const custom = safeGetJSON('sec_custom_feeders', []);
   
-  // Fallback: الافتراضية + المحلية (في حال لم تتم المزامنة)
-  const custom = JSON.parse(localStorage.getItem('sec_custom_feeders') || '[]');
-  return [...DEFAULT_FEEDERS, ...custom];
+  // 🎯 المنطق الجديد: دمج كل المصادر دائمًا (لا "أو")
+  const allFeeders = new Set();
+  
+  // 1. الافتراضية (دائمًا موجودة)
+  DEFAULT_FEEDERS.forEach(f => allFeeders.add(f));
+  
+  // 2. المضافة محليًا
+  custom.forEach(f => allFeeders.add(f));
+  
+  // 3. المشتركة من السحابة
+  shared.forEach(f => allFeeders.add(f));
+  
+  return Array.from(allFeeders);
 }
 
 function getCustomFeeders() {
-  return JSON.parse(localStorage.getItem('sec_custom_feeders') || '[]');
+  return safeGetJSON('sec_custom_feeders', []);
 }
 
 function getTechnicians() {
-  // أولوية: البيانات المشتركة من Sheets
-  if (sharedTechnicians && sharedTechnicians.length > 0) {
-    return sharedTechnicians;
-  }
+  const shared = safeGetJSON('sec_shared_technicians', []);
+  const local = safeGetJSON('sec_technicians_list', []);
   
-  // Fallback محلي
-  const saved = JSON.parse(localStorage.getItem('sec_technicians_list') || '[]');
+  // دمج
+  const all = new Set();
+  shared.forEach(t => all.add(t));
+  local.forEach(t => all.add(t));
+  
+  // إضافة الفني الحالي
   const currentTech = localStorage.getItem('sec_technician');
-  if (currentTech && !saved.includes(currentTech)) {
-    saved.push(currentTech);
-    localStorage.setItem('sec_technicians_list', JSON.stringify(saved));
-  }
-  return saved;
+  if (currentTech) all.add(currentTech);
+  
+  return Array.from(all);
 }
 
 // ============ تحديث القوائم في النموذج ============
 function loadFeedersFromStorage() {
-  const select = document.getElementById('feederSelect');
-  const currentValue = select.value;
-  const feeders = getFeeders();
-  const customFeeders = getCustomFeeders();
-  
-  select.innerHTML = '<option value="">اختر المغذي/السكين...</option>';
-  
-  feeders.forEach(feeder => {
-    const opt = document.createElement('option');
-    opt.value = feeder;
-    opt.textContent = feeder;
-    if (customFeeders.includes(feeder)) {
-      opt.textContent += ' ✨';  // علامة على المُضاف
+  try {
+    const select = document.getElementById('feederSelect');
+    if (!select) {
+      console.warn('feederSelect element not found');
+      return;
     }
-    select.appendChild(opt);
-  });
-  
-  // إعادة القيمة المختارة
-  if (currentValue) select.value = currentValue;
+    
+    const currentValue = select.value;
+    const feeders = getFeeders();
+    const customFeeders = getCustomFeeders();
+    
+    console.log(`📋 تحميل ${feeders.length} مغذي`);
+    
+    // مسح القائمة وإعادة بنائها
+    select.innerHTML = '<option value="">اختر المغذي/السكين...</option>';
+    
+    if (feeders.length === 0) {
+      console.warn('⚠️ لا توجد مغذيات - استخدام الافتراضية');
+      // كحل احتياطي إجباري، استخدم الافتراضية
+      DEFAULT_FEEDERS.forEach(feeder => {
+        const opt = document.createElement('option');
+        opt.value = feeder;
+        opt.textContent = feeder;
+        select.appendChild(opt);
+      });
+    } else {
+      feeders.forEach(feeder => {
+        if (!feeder) return;  // تجنب القيم الفارغة
+        const opt = document.createElement('option');
+        opt.value = feeder;
+        opt.textContent = feeder;
+        if (customFeeders.includes(feeder)) {
+          opt.textContent += ' ✨';
+        }
+        select.appendChild(opt);
+      });
+    }
+    
+    // إعادة القيمة المختارة
+    if (currentValue) {
+      select.value = currentValue;
+    }
+  } catch (err) {
+    console.error('خطأ في loadFeedersFromStorage:', err);
+    // آخر محاولة: تحميل الافتراضية مباشرة
+    try {
+      const select = document.getElementById('feederSelect');
+      if (select) {
+        select.innerHTML = '<option value="">اختر المغذي/السكين...</option>';
+        DEFAULT_FEEDERS.forEach(feeder => {
+          const opt = document.createElement('option');
+          opt.value = feeder;
+          opt.textContent = feeder;
+          select.appendChild(opt);
+        });
+      }
+    } catch (e) {
+      console.error('فشل التحميل الاحتياطي:', e);
+    }
+  }
 }
 
 function loadTechniciansFromStorage() {
@@ -4726,10 +4859,33 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Initialize
-loadFeedersFromStorage();
-loadTechniciansFromStorage();
-updateProgress();
+// Initialize - تحميل آمن مع DOMContentLoaded
+function initializeApp() {
+  try {
+    loadFeedersFromStorage();
+    loadTechniciansFromStorage();
+    updateProgress();
+    console.log('✅ تم تهيئة التطبيق بنجاح');
+  } catch (err) {
+    console.error('خطأ في التهيئة:', err);
+    // محاولة ثانية بعد ثانية
+    setTimeout(() => {
+      try {
+        loadFeedersFromStorage();
+        loadTechniciansFromStorage();
+      } catch (e) {
+        console.error('فشلت المحاولة الثانية:', e);
+      }
+    }, 1000);
+  }
+}
+
+// التشغيل الفوري إذا كان DOM جاهزًا
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
 
 // ============ مزامنة تلقائية عند الفتح ============
 // تحدث في الخلفية دون تعطيل المستخدم
